@@ -169,12 +169,18 @@ analyzeJson macro buffer, size
 
 	            mov         auxCadena[di], '%'
 	            xor         di, di
-
+	            print       auxCadena
+	            print       salto
 	            saveOnArray auxCadena, operandos
-
+	            print       operandos
+	            print       salto
 	            xor         di, di
+
 	            pop         ax
 	            pop         si
+
+	            getNumber   auxCadena, buffer, operandos
+	            xor         di, di
 
 	            clean       auxCadena, SIZEOF auxCadena
 	            jmp         INCREMENTAR
@@ -208,10 +214,10 @@ saveOnArray macro auxCadena, array
 	            jmp   POSICION
 
 	ASIGNACION: 
-	            mov   al, auxCadena[si]        	; caracter al registro bl
-	            cmp   al, '$'                  	; fin de cadena
+	            mov   bl, auxCadena[si]        	; caracter al registro bl
+	            cmp   bl, '$'                  	; fin de cadena
 	            je    FIN
-	            mov   array[di], al
+	            mov   array[di], bl
 	            inc   di
 	            inc   si
 	            jmp   ASIGNACION
@@ -219,6 +225,77 @@ saveOnArray macro auxCadena, array
 	FIN:        
 endm
 
+
+getNumber macro auxCadena, buffer, array
+	              LOCAL   COMPARACION, FIN, DOSPUNTOS, BUSCAR, POSICION, COMPARACION2, NUMERO, IDENTIFICADOR, AUXILIAR, AUXILIAR2
+	              xor     di, di
+	COMPARACION:  
+	              cmp     auxCadena, '#'
+	              je      DOSPUNTOS
+	;cmp     auxCadena, 'id'
+	;je      DOSPUNTOS
+	              jne     FIN
+	DOSPUNTOS:    
+	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp     bl, ':'                                                                                                	; fin de cadena
+	              je      BUSCAR
+	              inc     si
+	              jmp     DOSPUNTOS
+
+	BUSCAR:       
+	              inc     si
+	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp     bl, 09h                                                                                                	; fin de cadena
+	              je      BUSCAR
+	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp     bl, 20h                                                                                                	; fin de cadena
+	              je      BUSCAR
+	              jmp     POSICION
+
+	POSICION:     
+	              mov     bl, array[di]                                                                                          	; caracter al registro bl
+	              cmp     bl, '$'                                                                                                	; fin de cadena
+	              je      COMPARACION2
+	              inc     di
+	              jmp     POSICION
+
+	COMPARACION2: 
+	              cmp     auxCadena, '#'
+	              je      AUXILIAR
+	;jne   IDENTIFICADOR
+
+	AUXILIAR:     
+	              dec     di
+	              dec     di
+	              jmp     NUMERO
+
+
+	NUMERO:       
+	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp     bl, 09h                                                                                                	; fin de cadena
+	              je      AUXILIAR2
+	              cmp     bl, 20h                                                                                                	; fin de cadena
+	              je      AUXILIAR2
+	              cmp     bl, 0ah                                                                                                	; fin de cadena
+	              je      AUXILIAR2
+	              cmp     bl, ','                                                                                                	; fin de cadena
+	              je      AUXILIAR2
+	              mov     array[di], bl
+	              inc     di
+	              inc     si
+	              jmp     NUMERO
+
+	AUXILIAR2:    
+	              mov     array[di], '%'
+	              JMP     FIN
+
+	IDENTIFICADOR:
+	FIN:          
+	              print   operandos
+	              print   salto
+	              print   auxCadena
+	              getChar
+endm
 ; guardar los registros que tenemos
 ; este macro se utilizara al momento de hacer 
 ; algun analisis y no perdamos los datos ya 
