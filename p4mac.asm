@@ -115,6 +115,7 @@ analyzeJson macro buffer, size
 	            clean       operandos, SIZEOF operandos
 	            clean       auxInt, SIZEOF auxInt
 	            clean       auxCadena, SIZEOF auxCadena
+	            clean       padre, SIZEOF padre
 
 	INICIO:     
 	            xor         si, si
@@ -140,8 +141,10 @@ analyzeJson macro buffer, size
 	            jmp         INCREMENTAR
 
 	ACTIVACION: 
-	            xor         cx, cx
-	            mov         cx, 48
+	            push        si
+	            saveOnArray operandos, padre
+	            clean       operandos, SIZEOF operandos
+	            pop         si
 	            jmp         INCREMENTAR
 
 	CONTAR:     
@@ -167,13 +170,13 @@ analyzeJson macro buffer, size
 	            push        si
 	            push        ax
 
+	            changeWord  auxCadena
+
 	            mov         auxCadena[di], '%'
 	            xor         di, di
-	            print       auxCadena
-	            print       salto
+
+				
 	            saveOnArray auxCadena, operandos
-	            print       operandos
-	            print       salto
 	            xor         di, di
 
 	            pop         ax
@@ -227,75 +230,109 @@ endm
 
 
 getNumber macro auxCadena, buffer, array
-	              LOCAL   COMPARACION, FIN, DOSPUNTOS, BUSCAR, POSICION, COMPARACION2, NUMERO, IDENTIFICADOR, AUXILIAR, AUXILIAR2
-	              xor     di, di
+	              LOCAL COMPARACION, FIN, DOSPUNTOS, BUSCAR, POSICION, COMPARACION2, NUMERO, IDENTIFICADOR, AUXILIAR, AUXILIAR2
+	              xor   di, di
 	COMPARACION:  
-	              cmp     auxCadena, '#'
-	              je      DOSPUNTOS
+	              cmp   auxCadena, '#'
+	              je    DOSPUNTOS
 	;cmp     auxCadena, 'id'
 	;je      DOSPUNTOS
-	              jne     FIN
+	              jne   FIN
 	DOSPUNTOS:    
-	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
-	              cmp     bl, ':'                                                                                                	; fin de cadena
-	              je      BUSCAR
-	              inc     si
-	              jmp     DOSPUNTOS
+	              mov   bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp   bl, ':'                                                                                                	; fin de cadena
+	              je    BUSCAR
+	              inc   si
+	              jmp   DOSPUNTOS
 
 	BUSCAR:       
-	              inc     si
-	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
-	              cmp     bl, 09h                                                                                                	; fin de cadena
-	              je      BUSCAR
-	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
-	              cmp     bl, 20h                                                                                                	; fin de cadena
-	              je      BUSCAR
-	              jmp     POSICION
+	              inc   si
+	              mov   bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp   bl, 09h                                                                                                	; fin de cadena
+	              je    BUSCAR
+	              mov   bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp   bl, 20h                                                                                                	; fin de cadena
+	              je    BUSCAR
+	              jmp   POSICION
 
 	POSICION:     
-	              mov     bl, array[di]                                                                                          	; caracter al registro bl
-	              cmp     bl, '$'                                                                                                	; fin de cadena
-	              je      COMPARACION2
-	              inc     di
-	              jmp     POSICION
+	              mov   bl, array[di]                                                                                          	; caracter al registro bl
+	              cmp   bl, '$'                                                                                                	; fin de cadena
+	              je    COMPARACION2
+	              inc   di
+	              jmp   POSICION
 
 	COMPARACION2: 
-	              cmp     auxCadena, '#'
-	              je      AUXILIAR
+	              cmp   auxCadena, '#'
+	              je    AUXILIAR
 	;jne   IDENTIFICADOR
 
 	AUXILIAR:     
-	              dec     di
-	              dec     di
-	              jmp     NUMERO
+	              dec   di
+	              dec   di
+	              jmp   NUMERO
 
 
 	NUMERO:       
-	              mov     bl, buffer[si]                                                                                         	; caracter al registro bl
-	              cmp     bl, 09h                                                                                                	; fin de cadena
-	              je      AUXILIAR2
-	              cmp     bl, 20h                                                                                                	; fin de cadena
-	              je      AUXILIAR2
-	              cmp     bl, 0ah                                                                                                	; fin de cadena
-	              je      AUXILIAR2
-	              cmp     bl, ','                                                                                                	; fin de cadena
-	              je      AUXILIAR2
-	              mov     array[di], bl
-	              inc     di
-	              inc     si
-	              jmp     NUMERO
+	              mov   bl, buffer[si]                                                                                         	; caracter al registro bl
+	              cmp   bl, 09h                                                                                                	; fin de cadena
+	              je    AUXILIAR2
+	              cmp   bl, 20h                                                                                                	; fin de cadena
+	              je    AUXILIAR2
+	              cmp   bl, 0ah                                                                                                	; fin de cadena
+	              je    AUXILIAR2
+	              cmp   bl, ','                                                                                                	; fin de cadena
+	              je    AUXILIAR2
+	              mov   array[di], bl
+	              inc   di
+	              inc   si
+	              jmp   NUMERO
 
 	AUXILIAR2:    
-	              mov     array[di], '%'
-	              JMP     FIN
+	              mov   array[di], '%'
+	              JMP   FIN
 
 	IDENTIFICADOR:
 	FIN:          
-	              print   operandos
-	              print   salto
-	              print   auxCadena
-	              getChar
 endm
+
+changeWord macro cadena
+	               LOCAL VERIFICACION, MULITPLICACION, FIN, FIN2
+	               push  di
+	               xor   si, si
+	               xor   di, di
+	VERIFICACION:  
+	               mov   cx, 4                                  	; contador de los datos a comparar
+	               lea   si, mul1
+	               lea   di, cadena
+	               repe  cmpsb
+	               je    MULTIPLICACION
+	               jmp   FIN
+
+	MULTIPLICACION:
+	               clean cadena, SIZEOF cadena
+	               xor   di, di
+	               mov   bl, '*'
+	               mov   cadena[di], bl
+	               inc   di
+	               jmp   FIN2
+
+
+	FIN:           
+	               pop   di
+	               jmp   FIN2
+
+	FIN2:          
+
+endm
+
+
+
+
+
+
+
+
 ; guardar los registros que tenemos
 ; este macro se utilizara al momento de hacer 
 ; algun analisis y no perdamos los datos ya 

@@ -11,8 +11,9 @@ include p4mac.asm
 	salto           db 0ah, 0dh , '$'
 	
 	resultados      db 1000 dup ('$')
+	padre           db 1000 dup ('$')
 	operadores      db 1000 dup ('$')
-	operandos       db 1000 dup ('$')
+	operandos       db 3000 dup ('$')
 	auxInt          db 50 dup('$')
 	auxCadena       db 100 dup('$')                                                                                                                                                          	;
 	
