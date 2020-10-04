@@ -108,36 +108,115 @@ endm
 
 ; Analizador de archivo JSON
 analyzeJson macro buffer, size
-	            LOCAL INICIO, RECORRIDO ,INCREMENTAR, FIN
+	            LOCAL       INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
 	; limpiamos nuestros arreglos
-	            clean resultados, SIZEOF resultados
-	            clean operadores, SIZEOF operadores
-	            clean operandos, SIZEOF operandos
-	            clean auxInt, SIZEOF auxInt
+	            clean       resultados, SIZEOF resultados
+	            clean       operadores, SIZEOF operadores
+	            clean       operandos, SIZEOF operandos
+	            clean       auxInt, SIZEOF auxInt
+	            clean       auxCadena, SIZEOF auxCadena
 
 	INICIO:     
-	            xor   si, si
-	            xor   ax, ax
-	            xor   cx, cx
-	            xor   bx, bx
-	            xor   di, di
-	            mov   cx, size
+	            xor         si, si
+	            xor         ax, ax
+	            xor         cx, cx
+	            xor         bx, bx
+	            xor         di, di
 	RECORRIDO:  
-	            cmp   si, size                           	; si llegamos al tamaño del archivo finalizamos
-	            je    FIN
-	            mov   bl, buffer[si]                     	; caracter al registro bl
-	            cmp   bl, '$'                            	; fin de cadena
-	            je    FIN
-				
+	            cmp         si, size                                                                                      	; si llegamos al tamaño del archivo finalizamos
+	            je          FIN
+	            mov         bl, buffer[si]                                                                                	; caracter al registro bl
+	            cmp         bl, '$'                                                                                       	; fin de cadena
+	            je          FIN
+	            cmp         bl, '"'
+	            je          CADENA
+	            cmp         bl, '['
+	            je          ACTIVACION
+	            cmp         bl, '{'
+	            je          CONTAR
+	            cmp         bl, '}'
+	            je          OPERAR
+
+	            jmp         INCREMENTAR
+
+	ACTIVACION: 
+	            xor         cx, cx
+	            mov         cx, 48
+	            jmp         INCREMENTAR
+
+	CONTAR:     
+	
+	            inc         cx
+	            jmp         INCREMENTAR
+
+	DESCONTAR:  
+	            dec         cx
+	            jmp         OPERAR
+
+	CADENA:     
+	            inc         si
+	            dec         cx
+	            mov         bl, buffer[si]
+	            cmp         bl, '"'
+	            je          OPERACION
+	            mov         auxCadena[di], bl
+	            inc         di
+	            jmp         CADENA
+
+	OPERACION:  
+	            push        si
+	            push        ax
+
+	            mov         auxCadena[di], '%'
+	            xor         di, di
+
+	            saveOnArray auxCadena, operandos
+
+	            xor         di, di
+	            pop         ax
+	            pop         si
+
+	            clean       auxCadena, SIZEOF auxCadena
+	            jmp         INCREMENTAR
+
+	OPERAR:     
+	            xor         cx, cx
+	            mov         cx, 0
+	            print       operandos
+	            getChar
 
 	INCREMENTAR:
-	            inc   si
-	            dec   cx
-	            jmp   RECORRIDO
+	            inc         si
+	            jmp         RECORRIDO
 	
 	FIN:        
-	            print msm3
+	            print       msm3
 
+endm
+
+;gaurdar en un arreglo
+saveOnArray macro auxCadena, array
+	            LOCAL ASIGNACION, FIN, POSICION
+	            xor   si, si
+	            xor   di, di
+				
+	POSICION:   
+	            mov   bl, array[di]            	; caracter al registro bl
+	            cmp   bl, '$'                  	; fin de cadena
+	            je    ASIGNACION
+	            inc   di
+	            jmp   POSICION
+
+	ASIGNACION: 
+	            mov   al, auxCadena[si]        	; caracter al registro bl
+	            cmp   al, '$'                  	; fin de cadena
+	            je    FIN
+	            mov   array[di], al
+	            inc   di
+	            inc   si
+	            jmp   ASIGNACION
+
+	FIN:        
 endm
 
 ; guardar los registros que tenemos

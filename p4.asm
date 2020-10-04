@@ -12,8 +12,9 @@ include p4mac.asm
 	
 	resultados      db 1000 dup ('$')
 	operadores      db 1000 dup ('$')
-	operandos       dw 1000 dup ('$')
+	operandos       db 1000 dup ('$')
 	auxInt          db 50 dup('$')
+	auxCadena       db 100 dup('$')                                                                                                                                                          	;
 	
 	div1            db 'div', '$'                                                                                                                                                            	; salto de linea
 	div2            db '/', '$'                                                                                                                                                              	; salto de linea
@@ -22,7 +23,9 @@ include p4mac.asm
 	res1            db 'sub', '$'                                                                                                                                                            	; salto de linea
 	res2            db '-', '$'                                                                                                                                                              	; salto de linea
 	sum1            db 'sum', '$'                                                                                                                                                            	; salto de linea
-	sum2            db '+', '$'                                                                                                                                                              	; salto de linea
+	sum2            db '+', '$'
+	numero          db '#',  '$'                                                                                                                                                             	; salto de linea
+	id              db 'id',  '$'                                                                                                                                                            	; salto de linea
 
 	fecha           db "00/00/0000",0dh, 0ah
 	hora            db "00:00:00", 0dh, 0ah
@@ -44,6 +47,9 @@ include p4mac.asm
 	bufferEscritura db 100 dup('$')
 	handleFichero   dw ?
 
+	entra           db 0ah,0dh,'entra','$'
+	num             db 0ah,0dh,'num','$'
+	ide             db 0ah,0dh,'id','$'
 .code ;segmento de código
 ;================== SECCION DE CODIGO ===========================
 	main proc 
