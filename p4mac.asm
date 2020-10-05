@@ -162,7 +162,6 @@ analyzeJson macro buffer, size
 
 	CADENA:     
 	            inc               si
-	            dec               cx
 	            mov               bl, buffer[si]
 	            cmp               bl, '"'
 	            je                OPERACION
@@ -182,7 +181,6 @@ analyzeJson macro buffer, size
 				
 	            saveOnArray       auxCadena, operandos
 	            xor               di, di
-
 	            pop               ax
 	            pop               si
 
@@ -199,7 +197,8 @@ analyzeJson macro buffer, size
 	            pushRecords
 	            realizarOperacion
 	            popRecords
-	            jmp               INCREMENTAR
+	            print             resultado
+	            jmp               Salir
 
 	INCREMENTAR:
 	            inc               si
@@ -477,91 +476,169 @@ rotateOperand macro
 endm
 
 realizarOperacion macro
-	                  LOCAL   OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN
-	                  xor     si, si
-	                  xor     di, di
+	                  LOCAL           OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN
+	                  clean           resultado, SIZEOF resultado
+	                  xor             si, si
+	                  xor             di, di
 
 	OPERACION:        
-	                  mov     cx, 4
-	                  mov     ax, ds
-	                  mov     es, ax
-	                  lea     si, mul1
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      MULTIPLICACION
+	                  mov             cx, 4
+	                  mov             ax, ds
+	                  mov             es, ax
+	                  lea             si, mul1
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              MULTIPLICACION
 
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, mul2
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      MULTIPLICACION
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, mul2
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              MULTIPLICACION
 
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, div1
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      DIVISION
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, div1
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              DIVISION
 
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, div2
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      DIVISION
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, div2
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              DIVISION
 
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, res1
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      RESTA
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, res1
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              RESTA
 
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, res2
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      RESTA
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, res2
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              RESTA
 					  
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, sum1
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      SUMA
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, sum1
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              SUMA
 
-	                  xor     si, si
-	                  xor     di, di
-	                  lea     si, sum2
-	                  lea     di, operador
-	                  repe    cmpsb
-	                  je      SUMA
+	                  xor             si, si
+	                  xor             di, di
+	                  lea             si, sum2
+	                  lea             di, operador
+	                  repe            cmpsb
+	                  je              SUMA
 			
 	MULTIPLICACION:   
-	                  print   operador
-	                  print   entra
-	                  getChar
-	                  jmp     FIN
+	                  ConvertirAscii  num1
+	                  mov             bx,ax
+	                  push            bx
+	                  ConvertirAscii  num2
+	                  pop             bx
+	                  mul             bx
+	                  ConvertirString resultado
+	                  jmp             FIN
 	DIVISION:         
-	                  print   operador
-	                  print   entra
-	                  getChar
-	                  jmp     FIN
+	                  ConvertirAscii  num1
+	                  mov             bx,ax
+	                  push            bx
+	                  ConvertirAscii  num2
+	                  pop             bx
+	                  div             bx
+	                  ConvertirString resultado
+	                  jmp             FIN
 	SUMA:             
-	                  print   operador
-	                  print   entra
-	                  getChar
-	                  jmp     FIN
+	                  ConvertirAscii  num1
+	                  mov             bx,ax
+	                  push            bx
+	                  ConvertirAscii  num2
+	                  pop             bx
+	                  add             ax, bx
+	                  ConvertirString resultado
+	                  jmp             FIN
 	RESTA:            
-	                  print   operador
-	                  print   entra
-	                  getChar
-	                  jmp     FIN
+	                  ConvertirAscii  num1
+	                  mov             bx,ax
+	                  push            bx
+	                  ConvertirAscii  num2
+	                  pop             bx
+	                  sub             ax, bx
+	                  ConvertirString resultado
+	                  jmp             FIN
 					  
 	FIN:              
 					  
+endm
+
+
+ConvertirString macro buffer
+	                LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
+	                xor   si,si
+	                xor   cx,cx
+	                xor   bx,bx
+	                xor   dx,dx
+	                mov   dl,0ah
+	                test  ax,1000000000000000
+	                jnz   NEGATIVO
+	                jmp   Dividir2
+
+	NEGATIVO:       
+	                neg   ax
+	                mov   buffer[si],45
+	                inc   si
+	                jmp   Dividir2
+
+	Dividir:        
+	                xor   ah,ah
+	Dividir2:       
+	                div   dl
+	                inc   cx
+	                push  ax
+	                cmp   al,00h
+	                je    FinCr3
+	                jmp   Dividir
+	FinCr3:         
+	                pop   ax
+	                add   ah,30h
+	                mov   buffer[si],ah
+	                inc   si
+	                loop  FinCr3
+	                mov   ah,24h
+	                mov   buffer[si],ah
+	                inc   si
+	FIN:            
+endm
+
+
+ConvertirAscii macro numero
+	               LOCAL INICIO,FIN
+	               xor   ax,ax
+	               xor   bx,bx
+	               xor   cx,cx
+	               mov   bx,10        	;multiplicador 10
+	               xor   si,si
+	INICIO:        
+	               mov   cl,numero[si]
+	               cmp   cl,48
+	               jl    FIN
+	               cmp   cl,57
+	               jg    FIN
+	               inc   si
+	               sub   cl,48        	;restar 48 para que me de el numero
+	               mul   bx           	;multplicar ax por 10
+	               add   ax,cx        	;sumar lo que tengo mas el siguiente
+	               jmp   INICIO
+	FIN:           
 endm
 
 
