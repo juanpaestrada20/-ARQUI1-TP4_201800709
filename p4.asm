@@ -28,7 +28,7 @@ include p4mac.asm
 	mul2            db '*', '$'                                                                                                                                                              	; salto de linea
 	res1            db 'sub', '$'                                                                                                                                                            	; salto de linea
 	res2            db '-', '$'                                                                                                                                                              	; salto de linea
-	sum1            db 'sum', '$'                                                                                                                                                            	; salto de linea
+	sum1            db 'add', '$'                                                                                                                                                            	; salto de linea
 	sum2            db '+', '$'
 	numero          db '#',  '$'                                                                                                                                                             	; salto de linea
 	id              db 'id',  '$'                                                                                                                                                            	; salto de linea

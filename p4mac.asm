@@ -492,13 +492,6 @@ realizarOperacion macro
 
 	                  xor             si, si
 	                  xor             di, di
-	                  lea             si, mul2
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              MULTIPLICACION
-
-	                  xor             si, si
-	                  xor             di, di
 	                  lea             si, div1
 	                  lea             di, operador
 	                  repe            cmpsb
@@ -506,21 +499,7 @@ realizarOperacion macro
 
 	                  xor             si, si
 	                  xor             di, di
-	                  lea             si, div2
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              DIVISION
-
-	                  xor             si, si
-	                  xor             di, di
 	                  lea             si, res1
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              RESTA
-
-	                  xor             si, si
-	                  xor             di, di
-	                  lea             si, res2
 	                  lea             di, operador
 	                  repe            cmpsb
 	                  je              RESTA
@@ -533,13 +512,32 @@ realizarOperacion macro
 	                  je              SUMA
 
 	                  xor             si, si
-	                  xor             di, di
-	                  lea             si, sum2
-	                  lea             di, operador
-	                  repe            cmpsb
+	                  mov             bl, operador[si]
+	                  cmp             bl, '*'
+	                  je              MULTIPLICACION
+
+	                  xor             si, si
+	                  mov             bl, operador[si]
+	                  cmp             bl, '/'
+	                  je              DIVISION
+
+	                  xor             si, si
+	                  mov             bl, operador[si]
+	                  cmp             bl, '-'
+	                  je              RESTA
+
+	                  xor             si, si
+	                  mov             bl, operador[si]
+	                  cmp             bl, '+'
 	                  je              SUMA
 			
 	MULTIPLICACION:   
+	                  print           num2
+	                  print           salto
+	                  print           operador
+	                  print           salto
+	                  print           num1
+	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -549,6 +547,12 @@ realizarOperacion macro
 	                  ConvertirString resultado
 	                  jmp             FIN
 	DIVISION:         
+	                  print           num2
+	                  print           salto
+	                  print           operador
+	                  print           salto
+	                  print           num1
+	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -558,6 +562,12 @@ realizarOperacion macro
 	                  ConvertirString resultado
 	                  jmp             FIN
 	SUMA:             
+	                  print           num2
+	                  print           salto
+	                  print           operador
+	                  print           salto
+	                  print           num1
+	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -567,6 +577,12 @@ realizarOperacion macro
 	                  ConvertirString resultado
 	                  jmp             FIN
 	RESTA:            
+	                  print           num2
+	                  print           salto
+	                  print           operador
+	                  print           salto
+	                  print           num1
+	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
