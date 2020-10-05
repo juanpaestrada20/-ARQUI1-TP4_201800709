@@ -108,102 +108,105 @@ endm
 
 ; Analizador de archivo JSON
 analyzeJson macro buffer, size
-	            LOCAL       INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
+	            LOCAL             INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
 	; limpiamos nuestros arreglos
-	            clean       resultados, SIZEOF resultados
-	            clean       padre, SIZEOF padre
-	            clean       operandos, SIZEOF operandos
+	            clean             resultados, SIZEOF resultados
+	            clean             padre, SIZEOF padre
+	            clean             operandos, SIZEOF operandos
 	;clean       operador, SIZEOF operador
-	            clean       auxInt1, SIZEOF auxInt1
-	            clean       auxInt2, SIZEOF auxInt2
-	            clean       auxCadena, SIZEOF auxCadena
-	            clean       auxGiro, SIZEOF auxGiro
+	            clean             auxInt1, SIZEOF auxInt1
+	            clean             auxInt2, SIZEOF auxInt2
+	            clean             auxCadena, SIZEOF auxCadena
+	            clean             auxGiro, SIZEOF auxGiro
 
 	INICIO:     
-	            xor         si, si
-	            xor         ax, ax
-	            xor         cx, cx
-	            xor         bx, bx
-	            xor         di, di
-	            jmp         RECORRIDO
+	            xor               si, si
+	            xor               ax, ax
+	            xor               cx, cx
+	            xor               bx, bx
+	            xor               di, di
+	            jmp               RECORRIDO
 
 	RECORRIDO:  
-	            cmp         si, size                                                                                      	; si llegamos al tamaño del archivo finalizamos
-	            je          FIN
-	            mov         bl, buffer[si]                                                                                	; caracter al registro bl
-	            cmp         bl, '$'                                                                                       	; fin de cadena
-	            je          FIN
-	            cmp         bl, '"'
-	            je          CADENA
-	            cmp         bl, '['
-	            je          ACTIVACION
-	            cmp         bl, '{'
-	            je          CONTAR
-	            cmp         bl, '}'
-	            je          OPERAR
+	            cmp               si, size                                                                                      	; si llegamos al tamaño del archivo finalizamos
+	            je                FIN
+	            mov               bl, buffer[si]                                                                                	; caracter al registro bl
+	            cmp               bl, '$'                                                                                       	; fin de cadena
+	            je                FIN
+	            cmp               bl, '"'
+	            je                CADENA
+	            cmp               bl, '['
+	            je                ACTIVACION
+	            cmp               bl, '{'
+	            je                CONTAR
+	            cmp               bl, '}'
+	            je                OPERAR
 
-	            jmp         INCREMENTAR
+	            jmp               INCREMENTAR
 
 	ACTIVACION: 
-	            push        si
-	            saveOnArray operandos, padre
-	            clean       operandos, SIZEOF operandos
-	            pop         si
-	            jmp         INCREMENTAR
+	            push              si
+	            saveOnArray       operandos, padre
+	            clean             operandos, SIZEOF operandos
+	            pop               si
+	            jmp               INCREMENTAR
 
 	CONTAR:     
 	
-	            inc         cx
-	            jmp         INCREMENTAR
+	            inc               cx
+	            jmp               INCREMENTAR
 
 	DESCONTAR:  
-	            dec         cx
-	            jmp         OPERAR
+	            dec               cx
+	            jmp               OPERAR
 
 	CADENA:     
-	            inc         si
-	            dec         cx
-	            mov         bl, buffer[si]
-	            cmp         bl, '"'
-	            je          OPERACION
-	            mov         auxCadena[di], bl
-	            inc         di
-	            jmp         CADENA
+	            inc               si
+	            dec               cx
+	            mov               bl, buffer[si]
+	            cmp               bl, '"'
+	            je                OPERACION
+	            mov               auxCadena[di], bl
+	            inc               di
+	            jmp               CADENA
 
 	OPERACION:  
-	            push        si
-	            push        ax
+	            push              si
+	            push              ax
 
-	            changeWord  auxCadena
+	            changeWord        auxCadena
 
-	            mov         auxCadena[di], '%'
-	            xor         di, di
+	            mov               auxCadena[di], '%'
+	            xor               di, di
 
 				
-	            saveOnArray auxCadena, operandos
-	            xor         di, di
+	            saveOnArray       auxCadena, operandos
+	            xor               di, di
 
-	            pop         ax
-	            pop         si
+	            pop               ax
+	            pop               si
 
-	            getNumber   auxCadena, buffer, operandos
-	            xor         di, di
+	            getNumber         auxCadena, buffer, operandos
+	            xor               di, di
 
-	            clean       auxCadena, SIZEOF auxCadena
-	            jmp         INCREMENTAR
+	            clean             auxCadena, SIZEOF auxCadena
+	            jmp               INCREMENTAR
 
 	OPERAR:     
-	            xor         cx, cx
-	            mov         cx, 0
+	            xor               cx, cx
+	            mov               cx, 0
 	            getValues
-	            jmp         INCREMENTAR
+	            pushRecords
+	            realizarOperacion
+	            popRecords
+	            jmp               INCREMENTAR
 
 	INCREMENTAR:
-	            inc         si
-	            jmp         RECORRIDO
+	            inc               si
+	            jmp               RECORRIDO
 	
 	FIN:        
-	            print       msm3
+	            print             msm3
 
 endm
 
@@ -473,6 +476,93 @@ rotateOperand macro
 	FIN:          
 endm
 
+realizarOperacion macro
+	                  LOCAL   OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN
+	                  xor     si, si
+	                  xor     di, di
+
+	OPERACION:        
+	                  mov     cx, 4
+	                  mov     ax, ds
+	                  mov     es, ax
+	                  lea     si, mul1
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      MULTIPLICACION
+
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, mul2
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      MULTIPLICACION
+
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, div1
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      DIVISION
+
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, div2
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      DIVISION
+
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, res1
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      RESTA
+
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, res2
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      RESTA
+					  
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, sum1
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      SUMA
+
+	                  xor     si, si
+	                  xor     di, di
+	                  lea     si, sum2
+	                  lea     di, operador
+	                  repe    cmpsb
+	                  je      SUMA
+			
+	MULTIPLICACION:   
+	                  print   operador
+	                  print   entra
+	                  getChar
+	                  jmp     FIN
+	DIVISION:         
+	                  print   operador
+	                  print   entra
+	                  getChar
+	                  jmp     FIN
+	SUMA:             
+	                  print   operador
+	                  print   entra
+	                  getChar
+	                  jmp     FIN
+	RESTA:            
+	                  print   operador
+	                  print   entra
+	                  getChar
+	                  jmp     FIN
+					  
+	FIN:              
+					  
+endm
 
 
 ; guardar los registros que tenemos
