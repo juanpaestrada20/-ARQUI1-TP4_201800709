@@ -111,12 +111,13 @@ analyzeJson macro buffer, size
 	            LOCAL       INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
 	; limpiamos nuestros arreglos
 	            clean       resultados, SIZEOF resultados
-	            clean       operadores, SIZEOF operadores
+	            clean       padre, SIZEOF padre
 	            clean       operandos, SIZEOF operandos
+	;clean       operador, SIZEOF operador
 	            clean       auxInt1, SIZEOF auxInt1
 	            clean       auxInt2, SIZEOF auxInt2
 	            clean       auxCadena, SIZEOF auxCadena
-	            clean       padre, SIZEOF padre
+	            clean       auxGiro, SIZEOF auxGiro
 
 	INICIO:     
 	            xor         si, si
@@ -124,6 +125,8 @@ analyzeJson macro buffer, size
 	            xor         cx, cx
 	            xor         bx, bx
 	            xor         di, di
+	            jmp         RECORRIDO
+
 	RECORRIDO:  
 	            cmp         si, size                                                                                      	; si llegamos al tamaño del archivo finalizamos
 	            je          FIN
@@ -329,63 +332,105 @@ changeWord macro cadena
 endm
 
 getValues macro
-	            LOCAL       FIRSTVALUE, SECONDVALUE, FIN, POSITION, REMOVE, REMOVE2
+	            LOCAL         FIRSTVALUE, SECONDVALUE, FIN, POSITION, REMOVE, REMOVE2, REMOVE3, OPERACION, GIRAR
 	            pushRecords
-	            xor         si, si
-	            xor         di, di
+	            xor           si, si
+	            xor           di, di
+	            clean         auxGiro, SIZEOF auxGiro
 
 	POSITION:   
-	            mov         bl, operandos[di]
-	            cmp         bl, '$'
-	            je          REMOVE
-	            inc         di
-	            jmp         POSITION
+	            mov           bl, operandos[di]
+	            cmp           bl, '$'
+	            je            REMOVE
+	            inc           di
+	            jmp           POSITION
 
 	REMOVE:     
-	            dec         di
-	            mov         operandos[di], '$'
-	            jmp         FIRSTVALUE
+	            dec           di
+	            mov           operandos[di], '$'
+	            jmp           FIRSTVALUE
 
 	FIRSTVALUE: 
-	            dec         di
-	            mov         bl, operandos[di]
-	            cmp         bl, '%'
-	            je          REMOVE2
-	            mov         auxInt1[si], bl
-	            mov         operandos[di], '$'
-	            inc         si
-	            jmp         FIRSTVALUE
+	            dec           di
+	            mov           bl, operandos[di]
+	            cmp           bl, '%'
+	            je            REMOVE2
+	            mov           auxInt1[si], bl
+	            mov           operandos[di], '$'
+	            inc           si
+	            jmp           FIRSTVALUE
 
 	REMOVE2:    
-	            mov         operandos[di], '$'
-	            xor         si,si
-	            jmp         SECONDVALUE
+	            mov           operandos[di], '$'
+	            xor           si,si
+	            jmp           SECONDVALUE
 
 	SECONDVALUE:
-	            print       operandos
-	            print       salto
-	            dec         di
-	            mov         bl, operandos[di]
-	            cmp         bl, '%'
-	            je          FIN
-	            mov         auxInt2[si], bl
-	            mov         operandos[di], '$'
-	            inc         si
-	            jmp         SECONDVALUE
+	            dec           di
+	            mov           bl, operandos[di]
+	            cmp           bl, '%'
+	            je            REMOVE3
+	            mov           auxInt2[si], bl
+	            mov           operandos[di], '$'
+	            inc           si
+	            jmp           SECONDVALUE
+
+	REMOVE3:    
+	            mov           operandos[di], '$'
+	            xor           si,si
+	            jmp           OPERACION
+
+	OPERACION:  
+	            dec           di
+	            mov           bl, operandos[di]
+	            cmp           bl, '%'
+	            je            GIRO
+	            mov           auxGiro[si], bl
+	            mov           operandos[di], '$'
+	            inc           si
+	            jmp           OPERACION
+
+	GIRO:       
+	            push          di
+	            rotateOperand
+	            pop           di
 
 	FIN:        
-	            print       operandos
-	            print       salto
-	            print       auxInt1
-	            print       salto
-	            print       auxInt2
+	            print         operandos
+	            print         salto
+	            print         auxInt2
+	            print         salto
+	            print         operador
+	            print         salto
+	            print         auxInt1
 	            getChar
 	            popRecords
 
 endm
 
 
-
+rotateOperand macro
+	              LOCAL RECORRIDO, FIN, INTERCAMBIO
+	              clean operador, SIZEOF operador
+	              xor   si, si
+	              xor   di,di
+	              mov   si, SIZEOF auxGiro
+	RECORRIDO:    
+	              dec   si
+	              mov   bl, auxGiro[si]
+	              cmp   bl,	'$'
+	              je    RECORRIDO
+	              jmp   INTERCAMBIO
+	INTERCAMBIO:  
+	              mov   bl, auxGiro[si]
+	              cmp   di, SIZEOF operador
+	              je    FIN
+	              mov   operador[di], bl
+	              dec   si
+	              inc   di
+	              jmp   INTERCAMBIO
+	FIN:          
+endm
 
 
 
