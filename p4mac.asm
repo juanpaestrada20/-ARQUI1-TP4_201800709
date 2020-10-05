@@ -392,20 +392,61 @@ getValues macro
 
 	GIRO:       
 	            push          di
+	            rotateNumbers
 	            rotateOperand
 	            pop           di
 
 	FIN:        
-	            print         operandos
-	            print         salto
-	            print         auxInt2
-	            print         salto
-	            print         operador
-	            print         salto
-	            print         auxInt1
-	            getChar
 	            popRecords
 
+endm
+
+rotateNumbers macro
+	              LOCAL RECORRIDO1, RECORRIDO2, INTERCAMBIO1, INTERCAMBIO2, SIGUIENTE, FIN
+	              clean num1, SIZEOF num1
+	              clean num2, SIZEOF num2
+	              xor   si, si
+	              xor   di,di
+	              mov   si, SIZEOF auxInt1
+				  
+	RECORRIDO1:   
+	              dec   si
+	              mov   bl, auxInt1[si]
+	              cmp   bl,	'$'
+	              je    RECORRIDO1
+	              jmp   INTERCAMBIO1
+	INTERCAMBIO1: 
+	              mov   bl, auxInt1[si]
+	              cmp   di, SIZEOF num1
+	              je    SIGUIENTE
+	              mov   num1[di], bl
+	              dec   si
+	              inc   di
+	              jmp   INTERCAMBIO1
+
+	SIGUIENTE:    
+	              xor   si, si
+	              xor   di,di
+	              mov   si, SIZEOF auxInt2
+
+	RECORRIDO2:   
+	              dec   si
+	              mov   bl, auxInt2[si]
+	              cmp   bl,	'$'
+	              je    RECORRIDO2
+	              jmp   INTERCAMBIO2
+	INTERCAMBIO2: 
+	              mov   bl, auxInt2[si]
+	              cmp   di, SIZEOF num2
+	              je    FIN
+	              mov   num2[di], bl
+	              dec   si
+	              inc   di
+	              jmp   INTERCAMBIO2
+
+	FIN:          
+	              clean auxInt1, SIZEOF auxInt1
+	              clean auxInt2, SIZEOF auxInt2
 endm
 
 

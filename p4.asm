@@ -17,7 +17,9 @@ include p4mac.asm
 	auxInt1         db 100 dup('$')
 	auxInt2         db 100 dup('$')
 	auxCadena       db 100 dup('$')                                                                                                                                                          	;
-	auxGiro         db 4 dup('$')                                                                                                                                                            	;
+	auxGiro         db 4 dup('$')
+	num1            db 100 dup('$')                                                                                                                                                          	;
+	num2            db 100 dup('$')                                                                                                                                                          	;
 	
 	div1            db 'div', '$'                                                                                                                                                            	; salto de linea
 	div2            db '/', '$'                                                                                                                                                              	; salto de linea
