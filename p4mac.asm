@@ -113,7 +113,8 @@ analyzeJson macro buffer, size
 	            clean       resultados, SIZEOF resultados
 	            clean       operadores, SIZEOF operadores
 	            clean       operandos, SIZEOF operandos
-	            clean       auxInt, SIZEOF auxInt
+	            clean       auxInt1, SIZEOF auxInt1
+	            clean       auxInt2, SIZEOF auxInt2
 	            clean       auxCadena, SIZEOF auxCadena
 	            clean       padre, SIZEOF padre
 
@@ -191,8 +192,8 @@ analyzeJson macro buffer, size
 	OPERAR:     
 	            xor         cx, cx
 	            mov         cx, 0
-	            print       operandos
-	            getChar
+	            getValues
+	            jmp         INCREMENTAR
 
 	INCREMENTAR:
 	            inc         si
@@ -302,7 +303,7 @@ changeWord macro cadena
 	               xor   si, si
 	               xor   di, di
 	VERIFICACION:  
-	               mov   cx, 4                                  	; contador de los datos a comparar
+	               mov   cx, 3                                  	; contador de los datos a comparar
 	               lea   si, mul1
 	               lea   di, cadena
 	               repe  cmpsb
@@ -310,10 +311,11 @@ changeWord macro cadena
 	               jmp   FIN
 
 	MULTIPLICACION:
-	               clean cadena, SIZEOF cadena
+	               clean auxCadena, SIZEOF auxCadena
 	               xor   di, di
 	               mov   bl, '*'
-	               mov   cadena[di], bl
+	               mov   auxCadena[di], bl
+	               print cadena
 	               inc   di
 	               jmp   FIN2
 
@@ -326,7 +328,61 @@ changeWord macro cadena
 
 endm
 
+getValues macro
+	            LOCAL       FIRSTVALUE, SECONDVALUE, FIN, POSITION, REMOVE, REMOVE2
+	            pushRecords
+	            xor         si, si
+	            xor         di, di
 
+	POSITION:   
+	            mov         bl, operandos[di]
+	            cmp         bl, '$'
+	            je          REMOVE
+	            inc         di
+	            jmp         POSITION
+
+	REMOVE:     
+	            dec         di
+	            mov         operandos[di], '$'
+	            jmp         FIRSTVALUE
+
+	FIRSTVALUE: 
+	            dec         di
+	            mov         bl, operandos[di]
+	            cmp         bl, '%'
+	            je          REMOVE2
+	            mov         auxInt1[si], bl
+	            mov         operandos[di], '$'
+	            inc         si
+	            jmp         FIRSTVALUE
+
+	REMOVE2:    
+	            mov         operandos[di], '$'
+	            xor         si,si
+	            jmp         SECONDVALUE
+
+	SECONDVALUE:
+	            print       operandos
+	            print       salto
+	            dec         di
+	            mov         bl, operandos[di]
+	            cmp         bl, '%'
+	            je          FIN
+	            mov         auxInt2[si], bl
+	            mov         operandos[di], '$'
+	            inc         si
+	            jmp         SECONDVALUE
+
+	FIN:        
+	            print       operandos
+	            print       salto
+	            print       auxInt1
+	            print       salto
+	            print       auxInt2
+	            getChar
+	            popRecords
+
+endm
 
 
 

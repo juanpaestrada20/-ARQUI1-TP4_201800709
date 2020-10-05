@@ -14,7 +14,8 @@ include p4mac.asm
 	padre           db 1000 dup ('$')
 	operadores      db 1000 dup ('$')
 	operandos       db 3000 dup ('$')
-	auxInt          db 50 dup('$')
+	auxInt1         db 100 dup('$')
+	auxInt2         db 100 dup('$')
 	auxCadena       db 100 dup('$')                                                                                                                                                          	;
 	
 	div1            db 'div', '$'                                                                                                                                                            	; salto de linea
