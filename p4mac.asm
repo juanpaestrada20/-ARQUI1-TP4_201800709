@@ -108,108 +108,110 @@ endm
 
 ; Analizador de archivo JSON
 analyzeJson macro buffer, size
-	            LOCAL             INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
+	            LOCAL                   INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
 	; limpiamos nuestros arreglos
-	            clean             resultados, SIZEOF resultados
-	            clean             padre, SIZEOF padre
-	            clean             operandos, SIZEOF operandos
+	            clean                   resultados, SIZEOF resultados
+	            clean                   padre, SIZEOF padre
+	            clean                   operandos, SIZEOF operandos
 	;clean       operador, SIZEOF operador
-	            clean             auxInt1, SIZEOF auxInt1
-	            clean             auxInt2, SIZEOF auxInt2
-	            clean             auxCadena, SIZEOF auxCadena
-	            clean             auxGiro, SIZEOF auxGiro
+	            clean                   auxInt1, SIZEOF auxInt1
+	            clean                   auxInt2, SIZEOF auxInt2
+	            clean                   auxCadena, SIZEOF auxCadena
+	            clean                   auxGiro, SIZEOF auxGiro
 
 	INICIO:     
-	            xor               si, si
-	            xor               ax, ax
-	            xor               cx, cx
-	            xor               bx, bx
-	            xor               di, di
-	            jmp               RECORRIDO
+	            xor                     si, si
+	            xor                     ax, ax
+	            xor                     cx, cx
+	            xor                     bx, bx
+	            xor                     di, di
+	            jmp                     RECORRIDO
 
 	RECORRIDO:  
-	            cmp               si, size                                                                                      	; si llegamos al tamaño del archivo finalizamos
-	            je                FIN
-	            mov               bl, buffer[si]                                                                                	; caracter al registro bl
-	            cmp               bl, '$'                                                                                       	; fin de cadena
-	            je                FIN
-	            cmp               bl, '"'
-	            je                CADENA
-	            cmp               bl, '['
-	            je                ACTIVACION
-	            cmp               bl, '{'
-	            je                CONTAR
-	            cmp               bl, '}'
-	            je                OPERAR
+	            cmp                     si, size                                                                                      	; si llegamos al tamaño del archivo finalizamos
+	            je                      FIN
+	            mov                     bl, buffer[si]                                                                                	; caracter al registro bl
+	            cmp                     bl, '$'                                                                                       	; fin de cadena
+	            je                      FIN
+	            cmp                     bl, '"'
+	            je                      CADENA
+	            cmp                     bl, '['
+	            je                      ACTIVACION
+	            cmp                     bl, '{'
+	            je                      CONTAR
+	            cmp                     bl, '}'
+	            je                      OPERAR
 
-	            jmp               INCREMENTAR
+	            jmp                     INCREMENTAR
 
 	ACTIVACION: 
-	            push              si
-	            saveOnArray       operandos, padre
-	            clean             operandos, SIZEOF operandos
-	            pop               si
-	            jmp               INCREMENTAR
+	            push                    si
+	            saveOnArray             operandos, padre
+	            clean                   operandos, SIZEOF operandos
+	            xor                     di, di
+	            pop                     si
+	            jmp                     INCREMENTAR
 
 	CONTAR:     
 	
-	            inc               cx
-	            jmp               INCREMENTAR
+	            inc                     cx
+	            jmp                     INCREMENTAR
 
 	DESCONTAR:  
-	            dec               cx
-	            jmp               OPERAR
+	            dec                     cx
+	            jmp                     OPERAR
 
 	CADENA:     
-	            inc               si
-	            mov               bl, buffer[si]
-	            cmp               bl, '"'
-	            je                OPERACION
-	            mov               auxCadena[di], bl
-	            inc               di
-	            jmp               CADENA
+	            inc                     si
+	            mov                     bl, buffer[si]
+	            cmp                     bl, '"'
+	            je                      OPERACION
+	            mov                     auxCadena[di], bl
+	            inc                     di
+	            jmp                     CADENA
 
 	OPERACION:  
-	            push              si
-	            push              ax
+	            push                    si
+	            push                    ax
+	            mov                     auxCadena[di], '%'
+	            xor                     di, di
 
-	            changeWord        auxCadena
+	            saveOnArray             auxCadena, operandos
+	            print                   operandos
+	            getChar
+	            xor                     di, di
+	            pop                     ax
+	            pop                     si
 
-	            mov               auxCadena[di], '%'
-	            xor               di, di
+	            getNumber               auxCadena, buffer, operandos
+	            xor                     di, di
 
-				
-	            saveOnArray       auxCadena, operandos
-	            xor               di, di
-	            pop               ax
-	            pop               si
-
-	            getNumber         auxCadena, buffer, operandos
-	            xor               di, di
-
-	            clean             auxCadena, SIZEOF auxCadena
-	            jmp               INCREMENTAR
+	            clean                   auxCadena, SIZEOF auxCadena
+	            jmp                     INCREMENTAR
 
 	OPERAR:     
-	            xor               cx, cx
-	            mov               cx, 0
+	            xor                     cx, cx
+	            mov                     cx, 0
 	            getValues
 	            pushRecords
 	            realizarOperacion
+	            saveOnArray             resultado, operandos
+	            print                   operandos
+	            getChar
 	            popRecords
-	            print             resultado
-	            jmp               Salir
+	            verificarFinalOperacion buffer, resultado
+	            jmp                     INCREMENTAR
 
 	INCREMENTAR:
-	            inc               si
-	            jmp               RECORRIDO
+	            inc                     si
+	            jmp                     RECORRIDO
 	
 	FIN:        
-	            print             msm3
+	            print                   msm3
 
 endm
 
-;gaurdar en un arreglo
+;guardar en un arreglo
 saveOnArray macro auxCadena, array
 	            LOCAL ASIGNACION, FIN, POSICION
 	            xor   si, si
@@ -233,7 +235,6 @@ saveOnArray macro auxCadena, array
 
 	FIN:        
 endm
-
 
 getNumber macro auxCadena, buffer, array
 	              LOCAL COMPARACION, FIN, DOSPUNTOS, BUSCAR, POSICION, COMPARACION2, NUMERO, IDENTIFICADOR, AUXILIAR, AUXILIAR2
@@ -324,7 +325,6 @@ changeWord macro cadena
 	               inc   di
 	               jmp   FIN2
 
-
 	FIN:           
 	               pop   di
 	               jmp   FIN2
@@ -341,6 +341,7 @@ getValues macro
 	            clean         auxGiro, SIZEOF auxGiro
 
 	POSITION:   
+	
 	            mov           bl, operandos[di]
 	            cmp           bl, '$'
 	            je            REMOVE
@@ -451,6 +452,107 @@ rotateNumbers macro
 	              clean auxInt2, SIZEOF auxInt2
 endm
 
+verificarFinalOperacion macro buffer, result
+	                        LOCAL       INICIO, FIN, RESULTADO, AVANCE, COMPARACION, IGUALES, COMPARACION2, SALTEO, FIN2, SALTEO2, AVANCE2, PASADO
+	                        pushRecords
+	                        xor         si, si
+	                        xor         di, di
+	
+	INICIO:                 
+	                        mov         bl, operandos[si]
+	                        cmp         bl, '%'
+	                        je          AVANCE
+	                        mov         auxCadena[si], bl
+	                        inc         si
+	                        jmp         INICIO
+
+	AVANCE:                 
+	                        mov         bl, '%'
+	                        mov         auxCadena[si], bl
+	                        inc         si
+	                        clean       resultadoAux, SIZEOF resultadoAux
+	                        jmp         RESULTADO
+	
+	RESULTADO:              
+	                        mov         bl, operandos[si]
+	                        cmp         bl, '%'
+	                        je          COMPARACION
+	                        mov         resultadoAux[di], bl
+	                        inc         si
+	                        inc         di
+	                        jmp         RESULTADO
+
+	COMPARACION:            
+	                        xor         si, si                                                                                                    	; limpiamos el registro si para poder almacenaar la nueva comparacion
+	                        xor         di, di
+	                        jmp         COMPARACION2
+
+	COMPARACION2:           
+	                        mov         bl, result[si]
+	                        mov         al, resultadoAux[si]
+	                        cmp         al, bl
+	                        jne         FIN
+	                        cmp         al, '$'
+	                        jmp         IGUALES
+	                        inc         si
+	                        jmp         COMPARACION2
+
+
+	IGUALES:                
+	                        saveOnArray auxCadena, resultados
+	                        saveOnArray result, resultados
+	                        clean       operandos, SIZEOF resultados
+	                        popRecords
+	                        inc         si
+	                        jmp         SALTEO
+
+	SALTEO:                 
+	                        mov         bl, buffer[si]                                                                                            	; caracter al registro bl
+	                        cmp         bl, '$'                                                                                                   	; fin de cadena
+	                        je          FIN2
+	                        cmp         bl, '"'
+	                        je          PASADO
+	                        cmp         bl, ']'
+	                        je          PASADO
+	                        cmp         bl, '{'
+	                        je          FIN2
+	                        cmp         bl, '}'
+	                        je          AVANCE2
+	                        inc         si
+	                        jmp         SALTEO
+	AVANCE2:                
+	                        inc         si
+	                        jmp         SALTEO2
+
+	SALTEO2:                
+	                        mov         bl, buffer[si]                                                                                            	; caracter al registro bl
+	                        cmp         bl, '$'                                                                                                   	; fin de cadena
+	                        je          FIN2
+	                        cmp         bl, '"'
+	                        je          PASADO
+	                        cmp         bl, ']'
+	                        je          PASADO
+	                        cmp         bl, '{'
+	                        je          FIN2
+	                        cmp         bl, '}'
+	                        je          FIN2
+	                        inc         si
+	                        jmp         SALTEO2
+
+	PASADO:                 
+	                        dec         si
+	                        jmp         FIN2
+
+	FIN2:                   
+	                        pushRecords
+	                        jmp         FIN
+
+	FIN:                    
+	                        clean       auxCadena, SIZEOF auxCadena
+	                        popRecords
+
+
+endm
 
 rotateOperand macro
 	              LOCAL RECORRIDO, FIN, INTERCAMBIO
@@ -476,7 +578,7 @@ rotateOperand macro
 endm
 
 realizarOperacion macro
-	                  LOCAL           OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN
+	                  LOCAL           OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN, FIN2, FIN3
 	                  clean           resultado, SIZEOF resultado
 	                  xor             si, si
 	                  xor             di, di
@@ -532,12 +634,6 @@ realizarOperacion macro
 	                  je              SUMA
 			
 	MULTIPLICACION:   
-	                  print           num2
-	                  print           salto
-	                  print           operador
-	                  print           salto
-	                  print           num1
-	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -547,12 +643,6 @@ realizarOperacion macro
 	                  ConvertirString resultado
 	                  jmp             FIN
 	DIVISION:         
-	                  print           num2
-	                  print           salto
-	                  print           operador
-	                  print           salto
-	                  print           num1
-	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -562,12 +652,6 @@ realizarOperacion macro
 	                  ConvertirString resultado
 	                  jmp             FIN
 	SUMA:             
-	                  print           num2
-	                  print           salto
-	                  print           operador
-	                  print           salto
-	                  print           num1
-	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -577,12 +661,6 @@ realizarOperacion macro
 	                  ConvertirString resultado
 	                  jmp             FIN
 	RESTA:            
-	                  print           num2
-	                  print           salto
-	                  print           operador
-	                  print           salto
-	                  print           num1
-	                  getChar
 	                  ConvertirAscii  num1
 	                  mov             bx,ax
 	                  push            bx
@@ -593,9 +671,21 @@ realizarOperacion macro
 	                  jmp             FIN
 					  
 	FIN:              
+	                  xor             si, si
+	                  jmp             FIN2
+			
+	FIN2:             
+	                  mov             bl, resultado[si]
+	                  cmp             bl, '$'
+	                  je              FIN3
+	                  inc             si
+	                  jmp             FIN2
+
+	FIN3:             
+	                  mov             resultado[si], '%'
+
 					  
 endm
-
 
 ConvertirString macro buffer
 	                LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
@@ -635,7 +725,6 @@ ConvertirString macro buffer
 	FIN:            
 endm
 
-
 ConvertirAscii macro numero
 	               LOCAL INICIO,FIN
 	               xor   ax,ax
@@ -656,7 +745,6 @@ ConvertirAscii macro numero
 	               jmp   INICIO
 	FIN:           
 endm
-
 
 ; guardar los registros que tenemos
 ; este macro se utilizara al momento de hacer 

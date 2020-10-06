@@ -21,6 +21,7 @@ include p4mac.asm
 	num1            db 100 dup('$')                                                                                                                                                          	;
 	num2            db 100 dup('$')                                                                                                                                                          	;
 	resultado       db 100 dup('$')                                                                                                                                                          	;
+	resultadoAux    db 100 dup('$')                                                                                                                                                          	;
 	
 	div1            db 'div', '$'                                                                                                                                                            	; salto de linea
 	div2            db '/', '$'                                                                                                                                                              	; salto de linea
