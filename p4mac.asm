@@ -17,6 +17,30 @@ getChar macro
 	        int 21h
 endm
 
+; Obtiene la cadena de texto 
+; buffer es donde se almacenara la cadena
+getText macro buffer
+	         LOCAL   CONTINUE, SALIR
+	         PUSH    SI             	; guardar lo que tengo en si
+	         PUSH    AX             	; guardar lo que tengo en ax
+
+	         xor     si,si          	; limpiar el registro si
+	CONTINUE:
+	         getChar                	; obtiene un caracter
+	         cmp     al,0dh         	; verifica que sea un enter para dejar de aceptar
+	         je      SALIR          	; si es enter deja de recibir la entrada
+	         mov     buffer[si],al  	; almacena el caracter recibido
+	         inc     si             	; incremento la posicion del array
+	         jmp     CONTINUE       	; continuo recibiendo carcteres
+
+	SALIR:   
+	         mov     al,'$'         	; Coloco final de cadena
+	         mov     buffer[si],al  	; almaceno final de cadena
+
+	         POP     AX             	; recuparar valor ax
+	         POP     SI             	; recuperar valor si
+endm
+
 ; macro para obtener la ruta
 getRuta macro buffer
 	        LOCAL   INICIO,FIN
@@ -1080,7 +1104,6 @@ splitHora macro
 	          mov s[di], bl
 endm
 
-
 structureJson macro
 	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
 	              writeFile           SIZEOF tabulacion1, tabulacion1, handleFichero
@@ -1418,4 +1441,153 @@ obtenerMayor macro
 	             writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
 
 endm
+
+compareComando macro buffer
+	               LOCAL          STRUCTURE, ERROR, COMPARACION, IDENTIFICADOR, SIGUIENTE, SIGUIENTE2, COMPARACION2, MEIDAP, MEDIANAP, MODAP, MAYORP, MENORP, PADREP, IDENT, SALIR, ERROR2, REPORT, POSICION
+	               clean          auxCadena, SIZEOF auxCadena
+	               xor            si, si
+	               
+						
+	STRUCTURE:     
+	               mov            bl, buffer[si]
+	               cmp            bl, 20h
+	               je             COMPARACION
+	               mov            auxCadena[si], bl
+	               inc            si
+	               jmp            STRUCTURE
+
+	COMPARACION:   
+	               print          auxCadena
+	               getChar
+	               xor            cx, cx
+	               mov            cx, si
+	               push           si
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtShow
+	               repe           cmpsb
+	               je             SIGUIENTE
+	               jmp            ERROR
+
+	SIGUIENTE:     
+	               pop            si
+	               xor            di, di
+	               clean          auxCadena, SIZEOF auxCadena
+	               jmp            SIGUIENTE2
+	
+	SIGUIENTE2:    
+	               inc            si
+	               mov            bl, buffer[si]
+	               cmp            bl, 20h
+	               jne            IDENTIFICADOR
+	               jmp            SIGUIENTE2
+
+	IDENTIFICADOR: 
+	               mov            bl, buffer[si]
+	               cmp            bl, '$'
+	               je             COMPARACION2
+	               mov            auxCadena[di], bl
+	               inc            di
+	               inc            si
+	               jmp            IDENTIFICADOR
+
+	COMPARACION2:  
+	               xor            cx, cx
+	               mov            cx, di
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtMedia
+	               repe           cmpsb
+	               je             MEDIAP
+
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtMediana
+	               repe           cmpsb
+	               je             MEDIANAP
+
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtModa
+	               repe           cmpsb
+	               je             MODAP
+
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtMayor
+	               repe           cmpsb
+	               je             MAYORP
+
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtMenor
+	               repe           cmpsb
+	               je             MENORP
+
+	               xor            si, si
+	               jmp            POSICION
+
+	MEDIAP:        
+	MEDIANAP:      
+	MODAP:         
+	MAYORP:        
+	MENORP:        
+	               print          notYet
+	               jmp            FIN
+
+	POSICION:      
+	               mov            bl, padre[si]
+	               cmp            bl, '%'
+	               je             PADREP
+	               inc            si
+	               jmp            POSICION
+
+	PADREP:        
+	               print          padre
+	               print          salto
+	               print          auxCadena
+	               getChar
+	               mov            cx, si
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, padre
+	               repe           cmpsb
+	               je             REPORT
+	               jmp            FIN
+
+	REPORT:        
+	               generateReport
+	               jmp            FIN
+
+	IDENT:         
+
+	ERROR:         
+	               xor            si, si
+	               xor            di, di
+	               lea            si, auxCadena
+	               lea            di, txtExit
+	               repe           cmpsb
+	               jne            SALIR
+	               jmp            ERROR2
+
+	ERROR2:        
+	               pop            si
+	               print          msmError5
+	               jmp            FIN
+
+	SALIR:         
+	               jmp            Menu
+
+	FIN:           
+	               print          salto
+
+endm
+
 

@@ -46,7 +46,20 @@ include p4mac.asm
 	sum1            db 'add', '$'                                                                                                                                                            	; salto de linea
 	sum2            db '+', '$'
 	numero          db '#', '$'                                                                                                                                                              	; salto de linea
-	id              db 'id', '$'                                                                                                                                                             	; salto de linea
+	id              db 'id', '$'
+	; salto de linea
+	console         db 0ah, 0dh, '============== CONSOLA ==============', 0ah, 0dh, '$'                                                                                                      	; salto de linea
+	entrada         db '>> ', '$'                                                                                                                                                            	; salto de linea
+	comando         db 100 dup('$')
+	txtShow         db 'show', '$'
+	txtMedia        db 'media', '$'
+	txtMediana      db 'mediana', '$'
+	txtModa         db 'moda', '$'
+	txtMayor        db 'mayor', '$'
+	txtMenor        db 'menor', '$'
+	txtExit         db 'exit', '$'
+	notYet          db 'Metodo no implementado', '$'
+
 
 	date            db '00/00/0000'
 	hour            db '00:00:00'
@@ -56,14 +69,12 @@ include p4mac.asm
 	msm3            db 0ah,0dh,'Fin de analisis',0ah,0dh,'$'
 	msm4            db 0ah,0dh,'Creando Reporte JSON',0ah,0dh,'$'
 	msm5            db 0ah,0dh,'Reporte generado exitosamente!',0ah,0dh,'$'
+	msm6            db 0ah,0dh,'Regresando al Menu','$'
 	msmError1       db 0ah,0dh,'Error al abrir archivo','$'
 	msmError2       db 0ah,0dh,'Error al leer archivo','$'
 	msmError3       db 0ah,0dh,'Error al crear archivo','$'
-	msmError4       db 0ah,0dh,'Error al Escribir archivo','$'
-	msmError5       db 0ah,0dh,'Error al Formato de movimiento','$'
-	msmRegreso      db 0ah,0dh,'Regresando al Menu','$'
-	msmName         db 0ah,0dh,'Ingrese nombre para guardar:','$'
-	rutaTab         db 100 dup('0')
+	msmError4       db 0ah,0dh,'Error al escribir archivo','$'
+	msmError5       db 0ah,0dh,'Comando no reconocido','$'
 	rutaArchivo     db 100 dup('$')
 	bufferLectura   db 3000 dup('$')
 	bufferEscritura db 100 dup('$')
@@ -137,8 +148,14 @@ include p4mac.asm
 			clean rutaArchivo, SIZEOF rutaArchivo
 			jmp Menu
 		Consola:
-			generateReport
-			jmp Menu
+			print console
+			jmp Comandos
+		Comandos:
+			clean comando, SIZEOF comando
+			print entrada
+			getText comando
+			compareComando comando
+			jmp Comandos
 		Salir: 
 			MOV ah,4ch 
 			int 21h
