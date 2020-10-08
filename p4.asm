@@ -23,7 +23,19 @@ include p4mac.asm
 	resultado       db 100 dup('$')                                                                                                                                                          	;
 	resultadoAux    db 100 dup('$')
 	idRes           db 100 dup('$')                                                                                                                                                          	;
+	mediaVal        db 100 dup('$')                                                                                                                                                          	;
+	modaVal         db 100 dup('$')                                                                                                                                                          	;
+	noModa          db 'No hay moda'                                                                                                                                                         	;
+	medianaVal      db 100 dup('$')                                                                                                                                                          	;
+	menorVal        db 100 dup('$')                                                                                                                                                          	;
+	mayorVal        db 100 dup('$')                                                                                                                                                          	;
 	aux             db 5 dup('$')                                                                                                                                                            	;
+	d               db 2 dup('$')                                                                                                                                                            	;
+	m               db 2 dup('$')                                                                                                                                                            	;
+	a               db 4 dup('$')                                                                                                                                                            	;
+	h               db 2 dup('$')                                                                                                                                                            	;
+	min             db 2 dup('$')                                                                                                                                                            	;
+	s               db 2 dup('$')                                                                                                                                                            	;
 	
 	div1            db 'div', '$'                                                                                                                                                            	; salto de linea
 	div2            db '/', '$'                                                                                                                                                              	; salto de linea
@@ -33,16 +45,17 @@ include p4mac.asm
 	res2            db '-', '$'                                                                                                                                                              	; salto de linea
 	sum1            db 'add', '$'                                                                                                                                                            	; salto de linea
 	sum2            db '+', '$'
-	numero          db '#',  '$'                                                                                                                                                             	; salto de linea
-	id              db 'id',  '$'                                                                                                                                                            	; salto de linea
+	numero          db '#', '$'                                                                                                                                                              	; salto de linea
+	id              db 'id', '$'                                                                                                                                                             	; salto de linea
 
-	fecha           db "00/00/0000",0dh, 0ah
-	hora            db "00:00:00", 0dh, 0ah
+	date            db '00/00/0000'
+	hour            db '00:00:00'
 
-	msm1            db 0ah,0dh,'INGRESE RUTA',0ah,0dh,'$'
+	msm1            db 0ah,0dh,'INGRESE RUTA: ',0ah,0dh,'$'
 	msm2            db 0ah,0dh,'Archivo leido exitosamente!',0ah,0dh,'$'
 	msm3            db 0ah,0dh,'Fin de analisis',0ah,0dh,'$'
-	msm4            db 0ah,0dh,'GUARDANDO ARCHIVO',0ah,0dh,'$'
+	msm4            db 0ah,0dh,'Creando Reporte JSON',0ah,0dh,'$'
+	msm5            db 0ah,0dh,'Reporte generado exitosamente!',0ah,0dh,'$'
 	msmError1       db 0ah,0dh,'Error al abrir archivo','$'
 	msmError2       db 0ah,0dh,'Error al leer archivo','$'
 	msmError3       db 0ah,0dh,'Error al crear archivo','$'
@@ -56,6 +69,41 @@ include p4mac.asm
 	bufferEscritura db 100 dup('$')
 	handleFichero   dw ?
 
+	; ============================ VARIABLES REPORTE ============================
+	llaveAbre       db '{' , 0ah, 0dh
+	llaveCierra     db '}' , 0ah, 0dh
+	llaveCierraComa db '},' , 0ah, 0dh
+	corcheteAbre    db '[' , 0ah, 0dh
+	corcheteCierra  db ']' , 0ah, 0dh
+	comilla         db '"'
+	coma            db ','
+	puntos          db ':'
+	tabulacion1     db 09h
+	tabulacion2     db 09h, 09h
+	tabulacion3     db 09h, 09h, 09h
+	tabulacion4     db 09h, 09h, 09h, 09h
+	reporte         db '"Reporte": ', 0ah, 0dh
+	alumno          db '"Alumno": ', 0ah, 0dh
+	nombre          db '"Nombre": "Juan Pablo Estrada Aleman",', 0ah, 0dh
+	carnet          db '"Carnet": "201800708",', 0ah, 0dh
+	seccion         db '"Seccion": "A",', 0ah, 0dh
+	curso           db '"Curso": "Arquitectura de Computadores y Ensambladores 1"', 0ah, 0dh
+	fecha           db '"Fecha": ', 0ah, 0dh
+	dia             db '"Dia": '
+	mes             db '"Mes": '
+	anio            db '"Año": '
+	hora1           db '"Hora": ', 0ah, 0dh
+	hora2           db '"Hora": '
+	minutos         db '"Minutos": '
+	segundos        db '"Segundos": '
+	resultadosJson  db '"Resultados": ', 0ah, 0dh
+	media           db '"Media": '
+	mediana         db '"Mediana": '
+	moda            db '"Moda": '
+	menor           db '"Menor": '
+	mayor           db '"Mayor": '
+	saltoLinea      db 0ah, 0dh
+	
 	entra           db 0ah,0dh,'entra','$'
 	num             db 0ah,0dh,'num','$'
 	ide             db 0ah,0dh,'id','$'
@@ -89,6 +137,8 @@ include p4mac.asm
 			clean rutaArchivo, SIZEOF rutaArchivo
 			jmp Menu
 		Consola:
+			generateReport
+			jmp Menu
 		Salir: 
 			MOV ah,4ch 
 			int 21h

@@ -206,6 +206,10 @@ analyzeJson macro buffer, size
 	
 	FIN:        
 	            print                   msm3
+	            print                   salto
+	            print                   padre
+	            print                   salto
+	            print                   resultados
 	           
 
 endm
@@ -645,8 +649,6 @@ verificarFinalOperacion macro buffer, result
 
 	FIN2:                   
 	                        pushRecords
-	                        print       resultados
-	                        getChar
 	                        jmp         FIN
 
 	FIN:                    
@@ -938,3 +940,311 @@ bcd macro entrada
 	    pop  dx
 
 endm
+
+generateReport macro
+	               xor          si, si
+	               xor          di, di
+	               print        msm4
+	               generateJSON
+	               print        msm5
+endm
+
+setFileName macro
+	            LOCAL RECORRIDO, INTERCAMBIO
+	            xor   si, si
+
+	RECORRIDO:  
+	            mov   bl, padre[si]
+	            cmp   bl, '%'
+	            je    INTERCAMBIO
+	            mov   rutaArchivo[si], bl
+	            inc   si
+	            jmp   RECORRIDO
+	
+	INTERCAMBIO:
+	            mov   rutaArchivo[si], '.'
+	            inc   si
+	            mov   rutaArchivo[si], 'j'
+	            inc   si
+	            mov   rutaArchivo[si], 's'
+	            inc   si
+	            mov   rutaArchivo[si], 'o'
+	            inc   si
+	            mov   rutaArchivo[si], 'n'
+	            inc   si
+	            mov   rutaArchivo[si], 00h
+
+endm
+
+generateJSON macro
+	             getFecha      date
+	             getHora       hour
+	             splitFecha
+	             splitHora
+	             setFileName
+	             createFile    rutaArchivo, handleFichero
+	             openFile      rutaArchivo, handleFichero
+	             structureJson
+	             closeFile     handleFichero
+endm
+
+splitFecha macro
+	           xor si, si
+	           xor di, di
+	;dia
+	           mov bl, date[si]
+	           mov d[di], bl
+
+	           inc di
+	           inc si
+
+	           mov bl, date[si]
+	           mov d[di], bl
+
+	           inc si          	; /
+	           inc si
+	           xor di, di
+	; mes
+	           mov bl, date[si]
+	           mov m[di], bl
+
+	           inc di
+	           inc si
+
+	           mov bl, date[si]
+	           mov m[di], bl
+
+	           inc si          	; /
+	           inc si
+	           xor di, di
+	; año
+	           mov bl, date[si]
+	           mov a[di], bl
+
+	           inc di
+	           inc si
+
+	           mov bl, date[si]
+	           mov a[di], bl
+
+	           inc di
+	           inc si
+
+	           mov bl, date[si]
+	           mov a[di], bl
+
+	           inc di
+	           inc si
+
+	           mov bl, date[si]
+	           mov a[di], bl
+endm
+
+splitHora macro
+	          xor si, si
+	          xor di, di
+	; hora
+	          mov bl, hour[si]
+	          mov h[di], bl
+
+	          inc di
+	          inc si
+
+	          mov bl, hour[si]
+	          mov h[di], bl
+
+	          inc si          	; :
+	          inc si
+	          xor di, di
+	; minuto
+	          mov bl, hour[si]
+	          mov min[di], bl
+
+	          inc di
+	          inc si
+
+	          mov bl, hour[si]
+	          mov min[di], bl
+
+	          inc si          	; :
+	          inc si
+	          xor di, di
+	; segundos
+	          mov bl, hour[si]
+	          mov s[di], bl
+
+	          inc di
+	          inc si
+
+	          mov bl, date[si]
+	          mov s[di], bl
+endm
+
+
+structureJson macro
+	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
+	              writeFile           SIZEOF tabulacion1, tabulacion1, handleFichero
+	              writeFile           SIZEOF reporte, reporte, handleFichero
+	              writeFile           SIZEOF tabulacion1, tabulacion1, handleFichero
+	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
+	; datos alumno
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF alumno, alumno, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF nombre, nombre, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF carnet, carnet, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF seccion, seccion, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF curso, curso, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveCierraComa, llaveCierraComa, handleFichero
+	; fecha
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF fecha, fecha, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF dia, dia, handleFichero
+	              writeFile           SIZEOF d, d, handleFichero
+	              writeFile           SIZEOF coma, coma, handleFichero
+	              writeFile           SIZEOF saltoLinea, saltoLinea, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF mes, mes, handleFichero
+	              writeFile           SIZEOF m, m, handleFichero
+	              writeFile           SIZEOF coma, coma, handleFichero
+	              writeFile           SIZEOF saltoLinea, saltoLinea, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF anio, anio, handleFichero
+	              writeFile           SIZEOF a, a, handleFichero
+	              writeFile           SIZEOF saltoLinea, saltoLinea, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveCierraComa, llaveCierraComa, handleFichero
+	; hora
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF hora1, hora1, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF hora2, hora2, handleFichero
+	              writeFile           SIZEOF h, h, handleFichero
+	              writeFile           SIZEOF coma, coma, handleFichero
+	              writeFile           SIZEOF saltoLinea, saltoLinea, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF minutos, minutos, handleFichero
+	              writeFile           SIZEOF min, min, handleFichero
+	              writeFile           SIZEOF coma, coma, handleFichero
+	              writeFile           SIZEOF saltoLinea, saltoLinea, handleFichero
+	              writeFile           SIZEOF tabulacion3, tabulacion3, handleFichero
+	              writeFile           SIZEOF segundos, segundos, handleFichero
+	              writeFile           SIZEOF s, s, handleFichero
+	              writeFile           SIZEOF saltoLinea, saltoLinea, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveCierraComa, llaveCierraComa, handleFichero
+	; Estadisticas
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF resultadosJson, resultadosJson, handleFichero
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
+	; macro para imprimir las estadisticas
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF llaveCierraComa, llaveCierraComa, handleFichero
+	; Resultados
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              imprimirPadre
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF corcheteAbre, corcheteAbre, handleFichero
+	              imprimirOperaciones
+	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
+	              writeFile           SIZEOF corcheteCierra, corcheteCierra, handleFichero
+	; Fin JSON
+	              writeFile           SIZEOF tabulacion1, tabulacion1, handleFichero
+	              writeFile           SIZEOF llaveCierra, llaveCierra, handleFichero
+	              writeFile           SIZEOF llaveCierra, llaveCierra, handleFichero
+
+endm
+
+imprimirPadre macro
+	              LOCAL     ESPACIO, FIN
+	              xor       di, di
+
+	ESPACIO:      
+	              mov       bl, padre[di]
+	              cmp       bl, '%'
+	              je        FIN
+	              inc       di
+	              jmp       ESPACIO
+
+	FIN:          
+	              writeFile SIZEOF comilla, comilla, handleFichero
+	              writeFile di, padre, handleFichero
+	              writeFile SIZEOF comilla, comilla, handleFichero
+	              writeFile SIZEOF puntos, puntos, handleFichero
+	              writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+endm
+
+imprimirOperaciones macro
+	                    LOCAL     INICIO, IDENTIFICADOR, SIGUIENTE, VALOROP, SIGUIENTE2, ULTIMO, OTROID
+	                    xor       si, si
+	INICIO:             
+	                    clean     auxCadena, SIZEOF auxCadena
+	                    xor       di, di
+	                    writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	                    writeFile SIZEOF llaveAbre, llaveAbre, handleFichero
+	                    writeFile SIZEOF tabulacion4, tabulacion4, handleFichero
+	                    writeFile SIZEOF comilla, comilla, handleFichero
+	                    jmp       IDENTIFICADOR
+
+	IDENTIFICADOR:      
+	                    mov       bl, resultados[si]
+	                    cmp       bl, '%'
+	                    je        SIGUIENTE
+	                    mov       auxCadena[di], bl
+	                    inc       di
+	                    inc       si
+	                    jmp       IDENTIFICADOR
+
+	SIGUIENTE:          
+	                    writeFile di, auxCadena, handleFichero
+	                    writeFile SIZEOF comilla, comilla, handleFichero
+	                    writeFile SIZEOF puntos, puntos, handleFichero
+	                    clean     auxCadena, SIZEOF auxCadena
+	                    xor       di, di
+	                    inc       si
+	                    jmp       VALOROP
+
+	VALOROP:            
+	                    mov       bl, resultados[si]
+	                    cmp       bl, '%'
+	                    je        SIGUIENTE2
+	                    mov       auxCadena[di], bl
+	                    inc       di
+	                    inc       si
+	                    jmp       VALOROP
+
+	SIGUIENTE2:         
+	                    writeFile di, auxCadena, handleFichero
+	                    inc       si
+	                    mov       bl, resultados[si]
+	                    cmp       bl, '$'
+	                    je        ULTIMO
+	                    jmp       OTROID
+
+	OTROID:             
+	                    writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+	                    writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	                    writeFile SIZEOF llaveCierraComa, llaveCierraComa, handleFichero
+	                    jmp       INICIO
+
+	ULTIMO:             
+	                    writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+	                    writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	                    writeFile SIZEOF llaveCierra, llaveCierra, handleFichero
+
+endm
+
+
+
