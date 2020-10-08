@@ -25,7 +25,7 @@ include p4mac.asm
 	idRes           db 100 dup('$')                                                                                                                                                          	;
 	mediaVal        db 100 dup('$')                                                                                                                                                          	;
 	modaVal         db 100 dup('$')                                                                                                                                                          	;
-	noModa          db 'No hay moda'                                                                                                                                                         	;
+	noHay           db '"No hay"'                                                                                                                                                            	;
 	medianaVal      db 100 dup('$')                                                                                                                                                          	;
 	menorVal        db 100 dup('$')                                                                                                                                                          	;
 	mayorVal        db 100 dup('$')                                                                                                                                                          	;

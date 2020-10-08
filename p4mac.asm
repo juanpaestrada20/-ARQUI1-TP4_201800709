@@ -1149,7 +1149,11 @@ structureJson macro
 	              writeFile           SIZEOF resultadosJson, resultadosJson, handleFichero
 	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
 	              writeFile           SIZEOF llaveAbre, llaveAbre, handleFichero
-	; macro para imprimir las estadisticas
+	              obtenerMedia
+	              obtenerMediana
+	              obtenerModa
+	              obtenerMenor
+	              obtenerMayor
 	              writeFile           SIZEOF tabulacion2, tabulacion2, handleFichero
 	              writeFile           SIZEOF llaveCierraComa, llaveCierraComa, handleFichero
 	; Resultados
@@ -1246,5 +1250,172 @@ imprimirOperaciones macro
 
 endm
 
+obtenerMedia macro
+	             LOCAL     VACIO, RESULTADO, SINVALOR, IMPRIMIR, FIN
+	             xor       si, si
+	             writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	             writeFile SIZEOF media, media, handleFichero
+						
+	VACIO:       
+	             mov       bl, mediaVal[si]
+	             cmp       bl, '$'
+	             je        SINVALOR
+	             jmp       RESULTADO
 
+	RESULTADO:   
+	             mov       bl, mediaVal[si]
+	             cmp       bl, '$'
+	             je        IMPRIMIR
+	             inc       si
+	             jmp       RESULTADO
+
+	SINVALOR:    
+	             writeFile SIZEOF noHay, noHay, handleFichero
+	             jmp       FIN
+
+	IMPRIMIR:    
+	             writeFile si, mediaVal, handleFichero
+	             jmp       FIN
+
+
+	FIN:         
+	             writeFile SIZEOF coma, coma, handleFichero
+	             writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+
+endm
+
+obtenerMediana macro
+	               LOCAL     VACIO, RESULTADO, SINVALOR, IMPRIMIR, FIN
+	               xor       si, si
+	               writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	               writeFile SIZEOF mediana, mediana, handleFichero
+						
+	VACIO:         
+	               mov       bl, medianaVal[si]
+	               cmp       bl, '$'
+	               je        SINVALOR
+	               jmp       RESULTADO
+
+	RESULTADO:     
+	               mov       bl, medianaVal[si]
+	               cmp       bl, '$'
+	               je        IMPRIMIR
+	               inc       si
+	               jmp       RESULTADO
+
+	SINVALOR:      
+	               writeFile SIZEOF noHay, noHay, handleFichero
+	               jmp       FIN
+
+	IMPRIMIR:      
+	               writeFile si, medianaVal, handleFichero
+	               jmp       FIN
+
+
+	FIN:           
+	               writeFile SIZEOF coma, coma, handleFichero
+	               writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+
+endm
+
+obtenerModa macro
+	            LOCAL     VACIO, RESULTADO, SINVALOR, IMPRIMIR, FIN
+	            xor       si, si
+	            writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	            writeFile SIZEOF moda, moda, handleFichero
+						
+	VACIO:      
+	            mov       bl, modaVal[si]
+	            cmp       bl, '$'
+	            je        SINVALOR
+	            jmp       RESULTADO
+
+	RESULTADO:  
+	            mov       bl, modaVal[si]
+	            cmp       bl, '$'
+	            je        IMPRIMIR
+	            inc       si
+	            jmp       RESULTADO
+
+	SINVALOR:   
+	            writeFile SIZEOF noHay, noHay, handleFichero
+	            jmp       FIN
+
+	IMPRIMIR:   
+	            writeFile si, modaVal, handleFichero
+	            jmp       FIN
+
+
+	FIN:        
+	            writeFile SIZEOF coma, coma, handleFichero
+	            writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+
+endm
+
+obtenerMenor macro
+	             LOCAL     VACIO, RESULTADO, SINVALOR, IMPRIMIR, FIN
+	             xor       si, si
+	             writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	             writeFile SIZEOF menor, menor, handleFichero
+						
+	VACIO:       
+	             mov       bl, menorVal[si]
+	             cmp       bl, '$'
+	             je        SINVALOR
+	             jmp       RESULTADO
+
+	RESULTADO:   
+	             mov       bl, menorVal[si]
+	             cmp       bl, '$'
+	             je        IMPRIMIR
+	             inc       si
+	             jmp       RESULTADO
+
+	SINVALOR:    
+	             writeFile SIZEOF noHay, noHay, handleFichero
+	             jmp       FIN
+
+	IMPRIMIR:    
+	             writeFile si, menorVal, handleFichero
+	             jmp       FIN
+
+
+	FIN:         
+	             writeFile SIZEOF coma, coma, handleFichero
+	             writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+
+endm
+
+obtenerMayor macro
+	             LOCAL     VACIO, RESULTADO, SINVALOR, IMPRIMIR, FIN
+	             xor       si, si
+	             writeFile SIZEOF tabulacion3, tabulacion3, handleFichero
+	             writeFile SIZEOF mayor, mayor, handleFichero
+						
+	VACIO:       
+	             mov       bl, mayorVal[si]
+	             cmp       bl, '$'
+	             je        SINVALOR
+	             jmp       RESULTADO
+
+	RESULTADO:   
+	             mov       bl, mayorVal[si]
+	             cmp       bl, '$'
+	             je        IMPRIMIR
+	             inc       si
+	             jmp       RESULTADO
+
+	SINVALOR:    
+	             writeFile SIZEOF noHay, noHay, handleFichero
+	             jmp       FIN
+
+	IMPRIMIR:    
+	             writeFile si, mayorVal, handleFichero
+	             jmp       FIN
+
+
+	FIN:         
+	             writeFile SIZEOF saltoLinea, saltoLinea, handleFichero
+
+endm
 
