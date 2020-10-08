@@ -142,7 +142,7 @@ analyzeJson macro buffer, size
 	            cmp                     bl, '}'
 	            je                      OPERAR
 	            cmp                     bl, ']'
-	            je                      OPERAR
+	            je                      FIN
 
 	            jmp                     INCREMENTAR
 
@@ -179,8 +179,6 @@ analyzeJson macro buffer, size
 	            xor                     di, di
 
 	            saveOnArray             auxCadena, operandos
-	            print                   operandos
-	            getChar
 	            xor                     di, di
 	            pop                     ax
 	            pop                     si
@@ -208,11 +206,7 @@ analyzeJson macro buffer, size
 	
 	FIN:        
 	            print                   msm3
-	            print                   salto
-	            print                   padre
-	            print                   salto
-	            print                   resultados
-	            getChar
+	           
 
 endm
 
@@ -336,81 +330,106 @@ getNumber macro auxCadena, buffer, array
 endm
 
 getValueId macro valor
-	              LOCAL       IDENTIFICADOR, COMPARACION, OBTNERVALOR, SIGUIENTE, SIGUIENTE2, FIN, SINVALOR, OBTENER, ASIGNACION, POSICION,CAMBIO, SALIR
-	              clean       auxCadena, SIZEOF auxCadena
-	              xor         si, si
-	              xor         di, di
-	IDENTIFICADOR:
-	              mov         bl, resultados[si]
-	              cmp         bl, '%'
-	              je          COMPARACION
-	              cmp         bl, '$'
-	              je          SINVALOR
-	              mov         auxCadena[di], bl
-	              inc         di
-	              inc         si
-	              jmp         IDENTIFICADOR
+	               LOCAL       IDENTIFICADOR, COMPARACION, OBTNERVALOR, SIGUIENTE, SIGUIENTE2, FIN, SINVALOR, OBTENER, ASIGNACION, POSICION,CAMBIO, SALIR, IDENTIFICADOR2
+	               clean       auxCadena, SIZEOF auxCadena
+	               xor         si, si
+	               xor         di, di
+	IDENTIFICADOR: 
+	               mov         bl, resultados[si]
+	               cmp         bl, '%'
+	               je          COMPARACION
+	               cmp         bl, '$'
+	               je          SINVALOR
+	               mov         auxCadena[di], bl
+	               inc         di
+	               inc         si
+	               jmp         IDENTIFICADOR
 	
-	COMPARACION:  
-	              push        si
-	              xor         cx, cx
-	              xor         si, si
-	              mov         cx, di
-	              xor         di, di
-	              lea         si, auxCadena                                                                                                             	; mover el dato al registro si
-	              lea         di, valor                                                                                                                 	; enviamos la cadena exit al registro di para poder operarlo con si
-	              repe        cmpsb
-	              je          OBTNERVALOR
-	              jne         SIGUIENTE
+	COMPARACION:   
+	               push        si
+	               xor         cx, cx
+	               xor         si, si
+	               inc         di
+	               mov         cx, di
+	               xor         di, di
+	               lea         si, auxCadena                                                                                                                             	; mover el dato al registro si
+	               lea         di, valor                                                                                                                                 	; enviamos la cadena exit al registro di para poder operarlo con si
+	               repe        cmpsb
+	               je          OBTNERVALOR
+	               jne         SIGUIENTE
 
-	SIGUIENTE:    
-	              print       entra
-	              getChar
+	SIGUIENTE:     
+	               clean       auxCadena, SIZEOF auxCadena
+	               pop         si
+	               inc         si
+	               xor         di, di
+	               xor         bx, bx
+	               jmp         SIGUIENTE2
 
-	OBTNERVALOR:  
-	              clean       valor, SIZEOF valor
-	              clean       auxCadena, SIZEOF auxCadena
-	              pop         si
-	              inc         si
-	              mov         bl, resultados[si]
-	              xor         di, di
-	              jmp         OBTENER
+	SIGUIENTE2:    
+	               mov         bl, resultados[si]
+	               cmp         bl, '%'
+	               je          IDENTIFICADOR2
+	               cmp         bl, '$'
+	               je          SINVALOR
+	               inc         si
+	               jmp         SIGUIENTE2
+
+	IDENTIFICADOR2:
+	               inc         si
+	               jmp         IDENTIFICADOR
+
+	OBTNERVALOR:   
+	               getChar
+	               clean       valor, SIZEOF valor
+	               clean       auxCadena, SIZEOF auxCadena
+	               pop         si
+	               inc         si
+	               xor         di, di
+	               jmp         OBTENER
 				  
-	OBTENER:      
-	              mov         bl, resultados[si]
-	              cmp         bl, '%'
-	              je          ASIGNACION
-	              mov         valor[di], bl                                                                                                             	; caracter al registro bl
-	              inc         di
-	              inc         si
-	              jmp         OBTENER
+	OBTENER:       
+	               mov         bl, resultados[si]
+	               cmp         bl, '%'
+	               je          ASIGNACION
+	               mov         valor[di], bl                                                                                                                             	; caracter al registro bl
+	               inc         di
+	               inc         si
+	               jmp         OBTENER
 
-	SINVALOR:     
-	ASIGNACION:   
-	              mov         bl, '%'
-	              mov         valor[di], bl
-	              xor         si, si
-	              xor         di, di
-	              jmp         POSICION
+	SINVALOR:      
+	               clean       valor, SIZEOF valor
+	               clean       auxCadena, SIZEOF auxCadena
+	               xor         di, di
+	               mov         bl, '0'
+	               mov         valor[di], bl
+	               inc         di
+	               jmp         ASIGNACION
+	ASIGNACION:    
+	               mov         bl, '%'
+	               mov         valor[di], bl
+	               xor         si, si
+	               xor         di, di
+	               jmp         POSICION
 
-	POSICION:     
-	              mov         bl, operandos[di]                                                                                                         	; caracter al registro bl
-	              cmp         bl, '$'                                                                                                                   	; fin de cadena
-	              je          CAMBIO
-	              inc         di
-	              jmp         POSICION
+	POSICION:      
+	               mov         bl, operandos[di]                                                                                                                         	; caracter al registro bl
+	               cmp         bl, '$'                                                                                                                                   	; fin de cadena
+	               je          CAMBIO
+	               inc         di
+	               jmp         POSICION
 
-	CAMBIO:       
-	              dec         di
-	              mov         operandos[di], '$'
-	              dec         di
-	              mov         operandos[di], '$'
-	              dec         di
-	              mov         operandos[di], '$'
-	              saveOnArray valor, operandos
-	              jmp         SALIR
+	CAMBIO:        
+	               dec         di
+	               mov         operandos[di], '$'
+	               dec         di
+	               mov         operandos[di], '$'
+	               dec         di
+	               mov         operandos[di], '$'
+	               saveOnArray valor, operandos
+	               jmp         SALIR
 
-	SALIR:        
+	SALIR:         
 
 endm
 
@@ -626,6 +645,8 @@ verificarFinalOperacion macro buffer, result
 
 	FIN2:                   
 	                        pushRecords
+	                        print       resultados
+	                        getChar
 	                        jmp         FIN
 
 	FIN:                    

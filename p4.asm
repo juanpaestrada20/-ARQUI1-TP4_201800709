@@ -23,6 +23,7 @@ include p4mac.asm
 	resultado       db 100 dup('$')                                                                                                                                                          	;
 	resultadoAux    db 100 dup('$')
 	idRes           db 100 dup('$')                                                                                                                                                          	;
+	aux             db 5 dup('$')                                                                                                                                                            	;
 	
 	div1            db 'div', '$'                                                                                                                                                            	; salto de linea
 	div2            db '/', '$'                                                                                                                                                              	; salto de linea
@@ -84,6 +85,8 @@ include p4mac.asm
 			closeFile handleFichero
 			print msm2
 			analyzeJson bufferLectura, SIZEOF bufferLectura
+			clean bufferLectura, SIZEOF bufferLectura
+			clean rutaArchivo, SIZEOF rutaArchivo
 			jmp Menu
 		Consola:
 		Salir: 
