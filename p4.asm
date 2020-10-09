@@ -59,7 +59,10 @@ include p4mac.asm
 	txtMenor        db 'menor', '$'
 	txtExit         db 'exit', '$'
 	notYet          db 'Metodo no implementado', '$'
+	valorDe         db 'Resultado de ', '$'
+	dosP            db ': ', '$'
 
+	varAux          dw 0
 
 	date            db '00/00/0000'
 	hour            db '00:00:00'

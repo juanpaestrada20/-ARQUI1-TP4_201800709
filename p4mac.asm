@@ -408,7 +408,6 @@ getValueId macro valor
 	               jmp         IDENTIFICADOR
 
 	OBTNERVALOR:   
-	               getChar
 	               clean       valor, SIZEOF valor
 	               clean       auxCadena, SIZEOF auxCadena
 	               pop         si
@@ -706,111 +705,112 @@ rotateOperand macro
 endm
 
 realizarOperacion macro
-	                  LOCAL           OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN, FIN2, FIN3
-	                  clean           resultado, SIZEOF resultado
-	                  xor             si, si
-	                  xor             di, di
+	                  LOCAL     OPERACION, MULTIPLICACION, DIVISION, SUMA, RESTA, FIN, FIN2, FIN3
+	                  clean     resultado, SIZEOF resultado
+	                  xor       si, si
+	                  xor       di, di
 
 	OPERACION:        
-	                  mov             cx, 4
-	                  mov             ax, ds
-	                  mov             es, ax
-	                  lea             si, mul1
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              MULTIPLICACION
+	                  mov       cx, 4
+	                  mov       ax, ds
+	                  mov       es, ax
+	                  lea       si, mul1
+	                  lea       di, operador
+	                  repe      cmpsb
+	                  je        MULTIPLICACION
 
-	                  xor             si, si
-	                  xor             di, di
-	                  lea             si, div1
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              DIVISION
+	                  xor       si, si
+	                  xor       di, di
+	                  lea       si, div1
+	                  lea       di, operador
+	                  repe      cmpsb
+	                  je        DIVISION
 
-	                  xor             si, si
-	                  xor             di, di
-	                  lea             si, res1
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              RESTA
+	                  xor       si, si
+	                  xor       di, di
+	                  lea       si, res1
+	                  lea       di, operador
+	                  repe      cmpsb
+	                  je        RESTA
 					  
-	                  xor             si, si
-	                  xor             di, di
-	                  lea             si, sum1
-	                  lea             di, operador
-	                  repe            cmpsb
-	                  je              SUMA
+	                  xor       si, si
+	                  xor       di, di
+	                  lea       si, sum1
+	                  lea       di, operador
+	                  repe      cmpsb
+	                  je        SUMA
 
-	                  xor             si, si
-	                  mov             bl, operador[si]
-	                  cmp             bl, '*'
-	                  je              MULTIPLICACION
+	                  xor       si, si
+	                  mov       bl, operador[si]
+	                  cmp       bl, '*'
+	                  je        MULTIPLICACION
 
-	                  xor             si, si
-	                  mov             bl, operador[si]
-	                  cmp             bl, '/'
-	                  je              DIVISION
+	                  xor       si, si
+	                  mov       bl, operador[si]
+	                  cmp       bl, '/'
+	                  je        DIVISION
 
-	                  xor             si, si
-	                  mov             bl, operador[si]
-	                  cmp             bl, '-'
-	                  je              RESTA
+	                  xor       si, si
+	                  mov       bl, operador[si]
+	                  cmp       bl, '-'
+	                  je        RESTA
 
-	                  xor             si, si
-	                  mov             bl, operador[si]
-	                  cmp             bl, '+'
-	                  je              SUMA
+	                  xor       si, si
+	                  mov       bl, operador[si]
+	                  cmp       bl, '+'
+	                  je        SUMA
 			
 	MULTIPLICACION:   
-	                  ConvertirAscii  num1
-	                  mov             bx,ax
-	                  push            bx
-	                  ConvertirAscii  num2
-	                  pop             bx
-	                  mul             bx
-	                  ConvertirString resultado
-	                  jmp             FIN
+	                  to_int    num1
+	                  mov       bx,ax
+	                  push      bx
+	                  to_int    num2
+	                  pop       bx
+	                  imul      bx
+	                  to_string resultado
+	                  jmp       FIN
 	DIVISION:         
-	                  ConvertirAscii  num1
-	                  mov             bx,ax
-	                  push            bx
-	                  ConvertirAscii  num2
-	                  pop             bx
-	                  div             bx
-	                  ConvertirString resultado
-	                  jmp             FIN
+	                  to_int    num1
+	                  mov       bx,ax
+	                  push      bx
+	                  to_int    num2
+	                  pop       bx
+	                  cwd
+	                  idiv      bx
+	                  to_string resultado
+	                  jmp       FIN
 	SUMA:             
-	                  ConvertirAscii  num1
-	                  mov             bx,ax
-	                  push            bx
-	                  ConvertirAscii  num2
-	                  pop             bx
-	                  add             ax, bx
-	                  ConvertirString resultado
-	                  jmp             FIN
+	                  to_int    num1
+	                  mov       bx,ax
+	                  push      bx
+	                  to_int    num2
+	                  pop       bx
+	                  add       ax, bx
+	                  to_string resultado
+	                  jmp       FIN
 	RESTA:            
-	                  ConvertirAscii  num1
-	                  mov             bx,ax
-	                  push            bx
-	                  ConvertirAscii  num2
-	                  pop             bx
-	                  sub             ax, bx
-	                  ConvertirString resultado
-	                  jmp             FIN
+	                  to_int    num1
+	                  mov       bx,ax
+	                  push      bx
+	                  to_int    num2
+	                  pop       bx
+	                  sub       ax, bx
+	                  to_string resultado
+	                  jmp       FIN
 					  
 	FIN:              
-	                  xor             si, si
-	                  jmp             FIN2
+	                  xor       si, si
+	                  jmp       FIN2
 			
 	FIN2:             
-	                  mov             bl, resultado[si]
-	                  cmp             bl, '$'
-	                  je              FIN3
-	                  inc             si
-	                  jmp             FIN2
+	                  mov       bl, resultado[si]
+	                  cmp       bl, '$'
+	                  je        FIN3
+	                  inc       si
+	                  jmp       FIN2
 
 	FIN3:             
-	                  mov             resultado[si], '%'
+	                  mov       resultado[si], '%'
 
 					  
 endm
@@ -821,7 +821,7 @@ ConvertirString macro buffer
 	                xor   cx,cx
 	                xor   bx,bx
 	                xor   dx,dx
-	                mov   dl,0ah
+	                mov   dx,0ah
 	                test  ax,1000000000000000
 	                jnz   NEGATIVO
 	                jmp   Dividir2
@@ -835,10 +835,10 @@ ConvertirString macro buffer
 	Dividir:        
 	                xor   ah,ah
 	Dividir2:       
-	                div   dl
+	                div   dx
 	                inc   cx
 	                push  ax
-	                cmp   al,00h
+	                cmp   ax,00h
 	                je    FinCr3
 	                jmp   Dividir
 	FinCr3:         
@@ -1443,151 +1443,364 @@ obtenerMayor macro
 endm
 
 compareComando macro buffer
-	               LOCAL          STRUCTURE, ERROR, COMPARACION, IDENTIFICADOR, SIGUIENTE, SIGUIENTE2, COMPARACION2, MEIDAP, MEDIANAP, MODAP, MAYORP, MENORP, PADREP, IDENT, SALIR, ERROR2, REPORT, POSICION
-	               clean          auxCadena, SIZEOF auxCadena
-	               xor            si, si
+	               LOCAL              STRUCTURE, ERROR, COMPARACION, IDENTIFICADOR, SIGUIENTE, SIGUIENTE2, COMPARACION2, MEIDAP, MEDIANAP, MODAP, MAYORP, MENORP, PADREP, IDENT, SALIR, ERROR2, REPORT, POSICION
+	               clean              auxCadena, SIZEOF auxCadena
+	               xor                si, si
 	               
 						
 	STRUCTURE:     
-	               mov            bl, buffer[si]
-	               cmp            bl, 20h
-	               je             COMPARACION
-	               mov            auxCadena[si], bl
-	               inc            si
-	               jmp            STRUCTURE
+	               mov                bl, buffer[si]
+	               cmp                bl, 20h
+	               je                 COMPARACION
+	               mov                auxCadena[si], bl
+	               inc                si
+	               jmp                STRUCTURE
 
 	COMPARACION:   
-	               print          auxCadena
-	               getChar
-	               xor            cx, cx
-	               mov            cx, si
-	               push           si
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtShow
-	               repe           cmpsb
-	               je             SIGUIENTE
-	               jmp            ERROR
+	               xor                cx, cx
+	               mov                cx, si
+	               push               si
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtShow
+	               repe               cmpsb
+	               je                 SIGUIENTE
+	               jmp                ERROR
 
 	SIGUIENTE:     
-	               pop            si
-	               xor            di, di
-	               clean          auxCadena, SIZEOF auxCadena
-	               jmp            SIGUIENTE2
+	               pop                si
+	               xor                di, di
+	               clean              auxCadena, SIZEOF auxCadena
+	               jmp                SIGUIENTE2
 	
 	SIGUIENTE2:    
-	               inc            si
-	               mov            bl, buffer[si]
-	               cmp            bl, 20h
-	               jne            IDENTIFICADOR
-	               jmp            SIGUIENTE2
+	               inc                si
+	               mov                bl, buffer[si]
+	               cmp                bl, 20h
+	               jne                IDENTIFICADOR
+	               jmp                SIGUIENTE2
 
 	IDENTIFICADOR: 
-	               mov            bl, buffer[si]
-	               cmp            bl, '$'
-	               je             COMPARACION2
-	               mov            auxCadena[di], bl
-	               inc            di
-	               inc            si
-	               jmp            IDENTIFICADOR
+	               mov                bl, buffer[si]
+	               cmp                bl, '$'
+	               je                 COMPARACION2
+	               mov                auxCadena[di], bl
+	               inc                di
+	               inc                si
+	               jmp                IDENTIFICADOR
 
 	COMPARACION2:  
-	               xor            cx, cx
-	               mov            cx, di
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtMedia
-	               repe           cmpsb
-	               je             MEDIAP
+	               xor                cx, cx
+	               mov                cx, di
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtMedia
+	               repe               cmpsb
+	               je                 MEDIAP
 
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtMediana
-	               repe           cmpsb
-	               je             MEDIANAP
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtMediana
+	               repe               cmpsb
+	               je                 MEDIANAP
 
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtModa
-	               repe           cmpsb
-	               je             MODAP
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtModa
+	               repe               cmpsb
+	               je                 MODAP
 
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtMayor
-	               repe           cmpsb
-	               je             MAYORP
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtMayor
+	               repe               cmpsb
+	               je                 MAYORP
 
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtMenor
-	               repe           cmpsb
-	               je             MENORP
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtMenor
+	               repe               cmpsb
+	               je                 MENORP
 
-	               xor            si, si
-	               jmp            POSICION
+	               xor                si, si
+	               jmp                POSICION
 
 	MEDIAP:        
 	MEDIANAP:      
 	MODAP:         
 	MAYORP:        
 	MENORP:        
-	               print          notYet
-	               jmp            FIN
+	               print              notYet
+	               jmp                FIN
 
 	POSICION:      
-	               mov            bl, padre[si]
-	               cmp            bl, '%'
-	               je             PADREP
-	               inc            si
-	               jmp            POSICION
+	               mov                bl, padre[si]
+	               cmp                bl, '%'
+	               je                 PADREP
+	               inc                si
+	               jmp                POSICION
 
 	PADREP:        
-	               print          padre
-	               print          salto
-	               print          auxCadena
-	               getChar
-	               mov            cx, si
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, padre
-	               repe           cmpsb
-	               je             REPORT
-	               jmp            FIN
+	               mov                cx, si
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, padre
+	               repe               cmpsb
+	               je                 REPORT
+	               jmp                IDENT
 
 	REPORT:        
 	               generateReport
-	               jmp            FIN
+	               jmp                FIN
 
 	IDENT:         
+	               printIdentificador auxCadena
+	               jmp                FIN
 
 	ERROR:         
-	               xor            si, si
-	               xor            di, di
-	               lea            si, auxCadena
-	               lea            di, txtExit
-	               repe           cmpsb
-	               jne            SALIR
-	               jmp            ERROR2
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtExit
+	               repe               cmpsb
+	               jne                SALIR
+	               jmp                ERROR2
 
 	ERROR2:        
-	               pop            si
-	               print          msmError5
-	               jmp            FIN
+	               pop                si
+	               print              msmError5
+	               jmp                FIN
 
 	SALIR:         
-	               jmp            Menu
+	               jmp                Menu
 
 	FIN:           
-	               print          salto
+	               print              salto
+
+endm
+
+printIdentificador macro valor
+	                   LOCAL IDENTIFICADOR, COMPARACION, OBTNERVALOR, SIGUIENTE, SIGUIENTE2, SINVALOR, OBTENER, SALIR, IDENTIFICADOR2, ADDFINAL, IMPRESION
+	                   clean idRes, SIZEOF idRes
+	                   xor   si, si
+	                   xor   di, di
+	IDENTIFICADOR:     
+	                   mov   bl, resultados[si]
+	                   cmp   bl, '%'
+	                   je    COMPARACION
+	                   cmp   bl, '$'
+	                   je    SINVALOR
+	                   mov   idRes[di], bl
+	                   inc   di
+	                   inc   si
+	                   jmp   IDENTIFICADOR
+	
+	COMPARACION:       
+	                   push  si
+	                   xor   cx, cx
+	                   xor   si, si
+	                   inc   di
+	                   mov   cx, di
+	                   xor   di, di
+	                   lea   si, idRes                                                                                                                    	; mover el dato al registro si
+	                   lea   di, valor                                                                                                                    	; enviamos la cadena exit al registro di para poder operarlo con si
+	                   repe  cmpsb
+	                   je    OBTNERVALOR
+	                   jne   SIGUIENTE
+
+	SIGUIENTE:         
+	                   clean idRes, SIZEOF idRes
+	                   pop   si
+	                   inc   si
+	                   xor   di, di
+	                   xor   bx, bx
+	                   jmp   SIGUIENTE2
+
+	SIGUIENTE2:        
+	                   mov   bl, resultados[si]
+	                   cmp   bl, '%'
+	                   je    IDENTIFICADOR2
+	                   cmp   bl, '$'
+	                   je    SINVALOR
+	                   inc   si
+	                   jmp   SIGUIENTE2
+
+	IDENTIFICADOR2:    
+	                   inc   si
+	                   jmp   IDENTIFICADOR
+
+	OBTNERVALOR:       
+	                   clean auxCadena, SIZEOF auxCadena
+	                   pop   si
+	                   inc   si
+	                   xor   di, di
+	                   jmp   OBTENER
+				  
+	OBTENER:           
+	                   mov   bl, resultados[si]
+	                   cmp   bl, '%'
+	                   je    IMPRESION
+	                   mov   valor[di], bl                                                                                                                	; caracter al registro bl
+	                   inc   di
+	                   inc   si
+	                   jmp   OBTENER
+
+	SINVALOR:          
+	                   clean valor, SIZEOF valor
+	                   xor   di, di
+	                   mov   bl, '0'
+	                   mov   valor[di], bl
+	                   inc   di
+	                   jmp   IMPRESION
+	IMPRESION:         
+	                   mov   bl, '$'
+	                   mov   valor[di], bl
+	                   xor   si, si
+	                   xor   di, di
+	                   print valorDe
+	                   print idRes
+	                   print dosP
+	                   print valor
+	                   jmp   SALIR
+
+	SALIR:             
+
+endm
+
+to_string macro string
+	            LOCAL NEGATIVO, DIVIDIR,TERMINARDIV,CONV,FINDIV
+	            PUSH  si
+	            PUSH  di
+	;xor ax,ax
+	            xor   dx, dx
+	            xor   bx, bx
+	            xor   cx,cx
+	            xor   si,si
+	            xor   di,di
+	;mov ax,numero
+	            test  ax,1000000000000000
+	            jnz   NEGATIVO
+	            jmp   DIVIDIR
+
+	NEGATIVO:   
+	            neg   ax
+	            mov   string[di], 45
+	            inc   di
+
+	DIVIDIR:    
+	            mov   cx, 10d
+	            div   cx
+	            push  dx
+	            xor   dx,dx
+	            inc   si
+	            cmp   ax,00h
+	            je    TERMINARDIV
+	            jmp   DIVIDIR
+
+	TERMINARDIV:
+	            mov   cx, si
+	            xor   si,si
+	            mov   si,di
+	            xor   di,di
+
+	CONV:       
+	            pop   dx
+	            add   dl,48d
+	            mov   string[si],dl
+	            inc   si
+	            loop  conv
+	            mov   dl, 36d
+	            mov   string[si],dl
+
+	FINDIV:     
+	            POP   si
+	            POP   di
+	            nop
 
 endm
 
 
+to_int macro string
+	           LOCAL CONVERTSI, FINSI, ACTIVARC2,ULTIMACION,C2
+	           PUSH  si
+	           PUSH  cx
+	           xor   si,si
+	           xor   cx,cx
+	           xor   ax,ax
+
+	CONVERTSI: 
+	           xor   dx,dx
+	           xor   bx,bx
+	           mov   bx,10d
+	           mov   cl, string[si]
+	           cmp   cl,45
+	           je    ACTIVARC2
+	           cmp   cl,48
+	           jl    ULTIMACION
+	           cmp   cl,57
+	           jg    ULTIMACION
+	           sub   cl,48
+	           mul   bx
+	           add   ax,cx
+	           inc   si
+	           jmp   CONVERTSI
+
+	ACTIVARC2: 
+	           mov   varAux,1
+	           inc   si
+	           jmp   CONVERTSI
+
+	ULTIMACION:
+	           cmp   varAux,1
+	           je    C2
+	           jmp   FINSI
+
+	C2:        
+	           neg   ax
+	FINSI:     
+	           mov   varAux,0
+	           POP   cx
+	           POP   si
+	           nop
+endm
+
+ParseToString macro string
+	              local Divide, EndCr3, Negative, End2, EndGC
+	              Push  si
+	              xor   si, si
+	              xor   cx, cx
+	              xor   bx, bx
+	              xor   dx, dx
+	              mov   bx, 0ah
+	              test  ax, 1000000000000000b
+	              jnz   Negative
+	              jmp   Divide
+	Negative:     
+	              neg   ax
+	              mov   string[si], 45
+	              inc   si
+	Divide:       
+	              xor   dx,dx
+	              div   bx
+	              inc   cx
+	              Push  dx
+	              cmp   ax, 00h
+	              je    EndCr3
+	              jmp   Divide
+	EndCr3:       
+	              pop   dx
+	              add   dx, 30h
+	              mov   string[si], dl
+	              inc   si
+	              Loop  EndCr3
+	              mov   string[si], '$'
+	EndGC:        
+	              Pop   si
+    endm
