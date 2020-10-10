@@ -136,13 +136,23 @@ analyzeJson macro buffer, size
 	; limpiamos nuestros arreglos
 	            clean                   resultados, SIZEOF resultados
 	            clean                   resultadosNum, SIZEOF resultadosNum
+	            mov                     cont, 0
+	            mov                     cont2, 0
+	            clean                   arrayWord, SIZEOF arrayWord
 	            clean                   padre, SIZEOF padre
 	            clean                   operandos, SIZEOF operandos
-	;clean       operador, SIZEOF operador
 	            clean                   auxInt1, SIZEOF auxInt1
 	            clean                   auxInt2, SIZEOF auxInt2
 	            clean                   auxCadena, SIZEOF auxCadena
 	            clean                   auxGiro, SIZEOF auxGiro
+	            clean                   num1, SIZEOF num1
+	            clean                   num2, SIZEOF num2
+	            clean                   resultado, SIZEOF resultado
+	            clean                   resultadoAux, SIZEOF resultadoAux
+	            clean                   idRes, SIZEOF idRes
+	            clean                   comando, SIZEOF comando
+	            clean                   num2, SIZEOF num2
+	            clean                   num2, SIZEOF num2
 
 	INICIO:     
 	            xor                     si, si
@@ -232,12 +242,11 @@ analyzeJson macro buffer, size
 	FIN:        
 	            print                   msm3
 	            print                   salto
-	            print                   resultadosNum
 	            convertToDouble
 	            BubbleSort              arrayWord
-	            mov                     ax, arrayWord[0]
-	            to_string               num1
-	            print                   num1
+	            realizarMedia
+	            realizarMenor
+	            realizarMayor
 
 endm
 
@@ -1016,6 +1025,8 @@ generateJSON macro
 	             closeFile     handleFichero
 endm
 
+
+
 splitFecha macro
 	           xor si, si
 	           xor di, di
@@ -1495,8 +1506,9 @@ compareComando macro buffer
 	               jmp                IDENTIFICADOR
 
 	COMPARACION2:  
+	               print              auxCadena
 	               xor                cx, cx
-	               mov                cx, di
+	               mov                cx, 5
 	               xor                si, si
 	               xor                di, di
 	               lea                si, auxCadena
@@ -1504,6 +1516,8 @@ compareComando macro buffer
 	               repe               cmpsb
 	               je                 MEDIAP
 
+	               xor                cx, cx
+	               mov                cx, 7
 	               xor                si, si
 	               xor                di, di
 	               lea                si, auxCadena
@@ -1511,6 +1525,8 @@ compareComando macro buffer
 	               repe               cmpsb
 	               je                 MEDIANAP
 
+	               xor                cx, cx
+	               mov                cx, 4
 	               xor                si, si
 	               xor                di, di
 	               lea                si, auxCadena
@@ -1518,6 +1534,8 @@ compareComando macro buffer
 	               repe               cmpsb
 	               je                 MODAP
 
+	               xor                cx, cx
+	               mov                cx, 5
 	               xor                si, si
 	               xor                di, di
 	               lea                si, auxCadena
@@ -1525,6 +1543,8 @@ compareComando macro buffer
 	               repe               cmpsb
 	               je                 MAYORP
 
+	               xor                cx, cx
+	               mov                cx, 5
 	               xor                si, si
 	               xor                di, di
 	               lea                si, auxCadena
@@ -1536,14 +1556,23 @@ compareComando macro buffer
 	               jmp                POSICION
 
 	MEDIAP:        
-	               realizarMedia
+	               print              mediaDe
+	               print              mediaVal
 	               jmp                FIN
+
 	MEDIANAP:      
 	MODAP:         
-	MAYORP:        
-	MENORP:        
 	               print              notYet
 	               jmp                FIN
+	MENORP:        
+	               print              menorDe
+	               print              menorVal
+	               jmp                FIN
+	MAYORP:        
+	               print              mayorDe
+	               print              mayorVal
+	               jmp                FIN
+
 
 	POSICION:      
 	               mov                bl, padre[si]
@@ -1591,6 +1620,7 @@ compareComando macro buffer
 	               print              salto
 
 endm
+
 
 printIdentificador macro valor
 	                   LOCAL IDENTIFICADOR, COMPARACION, OBTNERVALOR, SIGUIENTE, SIGUIENTE2, SINVALOR, OBTENER, SALIR, IDENTIFICADOR2, ADDFINAL, IMPRESION
@@ -1778,7 +1808,7 @@ to_int macro string
 endm
 
 realizarMedia macro
-	              LOCAL     GETNUMBER, INCREMENTAR, OPERAR, IMPRESION
+	              LOCAL     GETNUMBER, INCREMENTAR, OPERAR
 	              clean     num1, SIZEOF num1
 	              clean     num2, SIZEOF num2
 	              xor       ax, ax
@@ -1818,10 +1848,7 @@ realizarMedia macro
 	              cwd
 	              idiv      cx
 	              to_string mediaVal
-
-	IMPRESION:    
-	              print     mediaDe
-	              print     mediaVal
+	              
 endm
 
 convertToDouble macro
@@ -1867,6 +1894,7 @@ endm
 
 BubbleSort macro array
 	           LOCAL JUMP3, JUMP2, JUMP1, Ascendent
+	           dec   cont
 	           xor   di, di
 	           mov   cont2, 00h
 	JUMP3:     
@@ -1875,8 +1903,9 @@ BubbleSort macro array
 	           inc   si
 	JUMP2:     
 	           mov   ax, array[di]                 	; al
-	           mov   dx, array[si]                 	; ah
-	           jmp   Ascendent
+	           mov   dx, array[si]
+	           cmp   dx, '$'
+	           je    JUMP1                         	; ah
 	
 	Ascendent: 
 	           cmp   ax, dx
@@ -1896,4 +1925,23 @@ BubbleSort macro array
 	           jnz   JUMP3
 endm
 
+realizarMenor macro
+	              clean     menorVal, SIZEOF menorVal
+	              mov       ax, arrayWord[0]
+	              to_string menorVal
+endm
+
+realizarMayor macro
+	              xor       di, di
+	              clean     mayorVal, SIZEOF mayorVal
+	              mov       cx, cont
+	              mov       ax, cx
+	              mov       bx, 2
+	              imul      bx
+	              mov       di, ax
+	              xor       ax, ax
+	              mov       ax, arrayWord[di]
+	              to_string mayorVal
+
+endm
 

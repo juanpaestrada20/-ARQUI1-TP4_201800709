@@ -15,7 +15,7 @@ include p4mac.asm
 	cont            dw 0
 	cont2           dw 0
 	                
-	arrayWord       dw 100 dup(00h)
+	arrayWord       dw 100 dup('$')
 	padre           db 100 dup ('$')
 	operandos       db 3000 dup ('$')
 	operador        db 4 dup ('$')
@@ -66,6 +66,8 @@ include p4mac.asm
 	notYet          db 'Metodo no implementado', '$'
 	valorDe         db 'Resultado de ', '$'
 	mediaDe         db 'Estadistico de media: ', '$'
+	menorDe         db 'Valor menor: ', '$'
+	mayorDe         db 'Valor mayor: ', '$'
 	dosP            db ': ', '$'
 
 	varAux          dw 0
