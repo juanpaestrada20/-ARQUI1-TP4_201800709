@@ -1509,15 +1509,6 @@ compareComando macro buffer
 
 	COMPARACION2:  
 	               xor                cx, cx
-	               mov                cx, 5
-	               xor                si, si
-	               xor                di, di
-	               lea                si, auxCadena
-	               lea                di, txtMedia
-	               repe               cmpsb
-	               je                 MEDIAP
-
-	               xor                cx, cx
 	               mov                cx, 7
 	               xor                si, si
 	               xor                di, di
@@ -1525,6 +1516,15 @@ compareComando macro buffer
 	               lea                di, txtMediana
 	               repe               cmpsb
 	               je                 MEDIANAP
+
+	               xor                cx, cx
+	               mov                cx, 5
+	               xor                si, si
+	               xor                di, di
+	               lea                si, auxCadena
+	               lea                di, txtMedia
+	               repe               cmpsb
+	               je                 MEDIAP
 
 	               xor                cx, cx
 	               mov                cx, 4
@@ -1562,7 +1562,7 @@ compareComando macro buffer
 	               jmp                FIN
 
 	MEDIANAP:      
-	               print              menorDe
+	               print              medianaDe
 	               print              medianaVal
 	               jmp                FIN
 	MODAP:         
@@ -2034,7 +2034,7 @@ realizarModa macro
 	             inc       di
 	             inc       di
 	             cmp       di, dx
-	             je        FIN
+	             je        SIGUIENTE2
 	             jmp       RECORRER
 
 	SIGUIENTE2:  
