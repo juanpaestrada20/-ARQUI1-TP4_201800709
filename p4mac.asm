@@ -247,6 +247,7 @@ analyzeJson macro buffer, size
 	            realizarMedia
 	            realizarMenor
 	            realizarMayor
+	            realizarMediana
 
 endm
 
@@ -1561,6 +1562,9 @@ compareComando macro buffer
 	               jmp                FIN
 
 	MEDIANAP:      
+	               print              menorDe
+	               print              medianaVal
+	               jmp                FIN
 	MODAP:         
 	               print              notYet
 	               jmp                FIN
@@ -1937,11 +1941,59 @@ realizarMayor macro
 	              mov       cx, cont
 	              mov       ax, cx
 	              mov       bx, 2
-	              imul      bx
+	              mul       bx
 	              mov       di, ax
 	              xor       ax, ax
 	              mov       ax, arrayWord[di]
 	              to_string mayorVal
 
 endm
+
+realizarMediana macro
+	                LOCAL     IMPAR, PAR, COMPARACION, FIN
+	                xor       di, di
+	                xor       ax, ax
+	                xor       bx, bx
+	                xor       dx, dx
+	                xor       cx, cx
+	                clean     medianaVal, SIZEOF medianaVal
+	                mov       cx, cont
+	                inc       cx
+	COMPARACION:    
+	                mov       ax, cx
+	                mov       bx, 2
+	                div       bx
+	                cmp       dx,0
+	                jg        IMPAR
+	                je        PAR
+
+	IMPAR:          
+	                mov       di, cont
+	                mov       ax, arrayWord[di]
+	                to_string medianaVal
+	                jmp       FIN
+
+	PAR:            
+	                xor       ax, ax
+	                xor       bx, bx
+	                xor       dx, dx
+	                xor       cx, cx
+	                mov       cx, cont
+	                dec       cx
+	                mov       di, cx
+	                mov       ax, arrayWord[di]
+	                inc       cx
+	                inc       cx
+	                mov       di, cx
+	                mov       bx, arrayWord[di]
+	                add       ax, bx
+	                mov       bx, 2
+	                div       bx
+	                to_string medianaVal
+	                jmp       FIN
+
+	FIN:            
+
+endm
+
 

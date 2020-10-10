@@ -66,6 +66,7 @@ include p4mac.asm
 	notYet          db 'Metodo no implementado', '$'
 	valorDe         db 'Resultado de ', '$'
 	mediaDe         db 'Estadistico de media: ', '$'
+	medianaDe       db 'Estadistico de mediana: ', '$'
 	menorDe         db 'Valor menor: ', '$'
 	mayorDe         db 'Valor mayor: ', '$'
 	dosP            db ': ', '$'
