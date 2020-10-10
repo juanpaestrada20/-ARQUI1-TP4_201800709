@@ -135,6 +135,7 @@ analyzeJson macro buffer, size
 	            LOCAL                   INICIO,RECORRIDO, ACTIVACION, CONTAR, DESCONTAR, CADENA , OPERACION, OPERADOR,INCREMENTAR, FIN
 	; limpiamos nuestros arreglos
 	            clean                   resultados, SIZEOF resultados
+	            clean                   resultadosNum, SIZEOF resultadosNum
 	            clean                   padre, SIZEOF padre
 	            clean                   operandos, SIZEOF operandos
 	;clean       operador, SIZEOF operador
@@ -231,10 +232,12 @@ analyzeJson macro buffer, size
 	FIN:        
 	            print                   msm3
 	            print                   salto
-	            print                   padre
-	            print                   salto
-	            print                   resultados
-	           
+	            print                   resultadosNum
+	            convertToDouble
+	            BubbleSort              arrayWord
+	            mov                     ax, arrayWord[0]
+	            to_string               num1
+	            print                   num1
 
 endm
 
@@ -628,6 +631,7 @@ verificarFinalOperacion macro buffer, result
 	IGUALES:                
 	                        saveOnArray auxCadena, resultados
 	                        saveOnArray result, resultados
+	                        saveOnArray result, resultadosNum
 	                        clean       operandos, SIZEOF resultados
 	                        popRecords
 	                        inc         si
@@ -1532,6 +1536,8 @@ compareComando macro buffer
 	               jmp                POSICION
 
 	MEDIAP:        
+	               realizarMedia
+	               jmp                FIN
 	MEDIANAP:      
 	MODAP:         
 	MAYORP:        
@@ -1771,36 +1777,123 @@ to_int macro string
 	           nop
 endm
 
-ParseToString macro string
-	              local Divide, EndCr3, Negative, End2, EndGC
-	              Push  si
-	              xor   si, si
-	              xor   cx, cx
-	              xor   bx, bx
-	              xor   dx, dx
-	              mov   bx, 0ah
-	              test  ax, 1000000000000000b
-	              jnz   Negative
-	              jmp   Divide
-	Negative:     
-	              neg   ax
-	              mov   string[si], 45
-	              inc   si
-	Divide:       
-	              xor   dx,dx
-	              div   bx
-	              inc   cx
-	              Push  dx
-	              cmp   ax, 00h
-	              je    EndCr3
-	              jmp   Divide
-	EndCr3:       
-	              pop   dx
-	              add   dx, 30h
-	              mov   string[si], dl
-	              inc   si
-	              Loop  EndCr3
-	              mov   string[si], '$'
-	EndGC:        
-	              Pop   si
-    endm
+realizarMedia macro
+	              LOCAL     GETNUMBER, INCREMENTAR, OPERAR, IMPRESION
+	              clean     num1, SIZEOF num1
+	              clean     num2, SIZEOF num2
+	              xor       ax, ax
+	              xor       bx, bx
+	              xor       cx, cx
+	              xor       dx, dx
+	              xor       si, si
+	              xor       di, di
+
+	GETNUMBER:    
+	              mov       bl, resultadosNum[si]
+	              cmp       bl, '%'
+	              je        INCREMENTAR
+	              cmp       bl, '$'
+	              je        OPERAR
+	              mov       num1[di], bl
+	              inc       si
+	              inc       di
+	              jmp       GETNUMBER
+	
+	INCREMENTAR:  
+	              push      dx
+	              push      cx
+	              to_int    num1
+	              pop       cx
+	              pop       dx
+	              add       dx, ax
+	              inc       cx
+	              inc       si
+	              xor       di, di
+	              clean     num1, SIZEOF num1
+	              jmp       GETNUMBER
+
+	OPERAR:       
+	              clean     num2, SIZEOF num2
+	              mov       ax, dx
+	              cwd
+	              idiv      cx
+	              to_string mediaVal
+
+	IMPRESION:    
+	              print     mediaDe
+	              print     mediaVal
+endm
+
+convertToDouble macro
+	                LOCAL  GETNUMBER, INCREMENTAR, FIN, IMPRESION
+	                clean  num1, SIZEOF num1
+	                clean  num2, SIZEOF num2
+	                xor    ax, ax
+	                xor    bx, bx
+	                xor    cx, cx
+	                xor    dx, dx
+	                xor    si, si
+	                xor    di, di
+
+	GETNUMBER:      
+	                mov    bl, resultadosNum[si]
+	                cmp    bl, '%'
+	                je     INCREMENTAR
+	                cmp    bl, '$'
+	                je     FIN
+	                mov    num1[di], bl
+	                inc    si
+	                inc    di
+	                jmp    GETNUMBER
+
+	INCREMENTAR:    
+	                push   cx
+	                to_int num1
+	                pop    cx
+	                xor    di, di
+	                mov    di,cx
+	                mov    arrayWord[di], ax
+	                inc    cont
+	                inc    cx
+	                inc    cx
+	                inc    si
+	                xor    di, di
+	                clean  num1, SIZEOF num1
+	                jmp    GETNUMBER
+
+	FIN:            
+
+endm
+
+BubbleSort macro array
+	           LOCAL JUMP3, JUMP2, JUMP1, Ascendent
+	           xor   di, di
+	           mov   cont2, 00h
+	JUMP3:     
+	           mov   si, di
+	           inc   si
+	           inc   si
+	JUMP2:     
+	           mov   ax, array[di]                 	; al
+	           mov   dx, array[si]                 	; ah
+	           jmp   Ascendent
+	
+	Ascendent: 
+	           cmp   ax, dx
+	           jle   JUMP1
+	           mov   array[di], dx
+	           mov   array[si], ax
+	JUMP1:     
+	           inc   si
+	           inc   si
+	           cmp   si, SIZEOF array
+	           jnz   JUMP2
+	           inc   di
+	           inc   di
+	           inc   cont2
+	           mov   cx, cont2
+	           cmp   cx, cont
+	           jnz   JUMP3
+endm
+
+

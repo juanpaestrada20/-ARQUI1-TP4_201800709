@@ -11,7 +11,12 @@ include p4mac.asm
 	salto           db 0ah, 0dh , '$'
 	
 	resultados      db 1000 dup ('$')
-	padre           db 1000 dup ('$')
+	resultadosNum   db 1000 dup ('$')
+	cont            dw 0
+	cont2           dw 0
+	                
+	arrayWord       dw 100 dup(00h)
+	padre           db 100 dup ('$')
 	operandos       db 3000 dup ('$')
 	operador        db 4 dup ('$')
 	auxInt1         db 100 dup('$')
@@ -60,6 +65,7 @@ include p4mac.asm
 	txtExit         db 'exit', '$'
 	notYet          db 'Metodo no implementado', '$'
 	valorDe         db 'Resultado de ', '$'
+	mediaDe         db 'Estadistico de media: ', '$'
 	dosP            db ': ', '$'
 
 	varAux          dw 0
