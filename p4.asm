@@ -14,6 +14,7 @@ include p4mac.asm
 	resultadosNum   db 1000 dup ('$')
 	cont            dw 0
 	cont2           dw 0
+	cont3           dw 0
 	                
 	arrayWord       dw 100 dup('$')
 	padre           db 100 dup ('$')
@@ -67,6 +68,7 @@ include p4mac.asm
 	valorDe         db 'Resultado de ', '$'
 	mediaDe         db 'Estadistico de media: ', '$'
 	medianaDe       db 'Estadistico de mediana: ', '$'
+	modaDe          db 'Estadistico de moda: ', '$'
 	menorDe         db 'Valor menor: ', '$'
 	mayorDe         db 'Valor mayor: ', '$'
 	dosP            db ': ', '$'

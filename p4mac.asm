@@ -248,6 +248,7 @@ analyzeJson macro buffer, size
 	            realizarMenor
 	            realizarMayor
 	            realizarMediana
+	            realizarModa
 
 endm
 
@@ -1507,7 +1508,6 @@ compareComando macro buffer
 	               jmp                IDENTIFICADOR
 
 	COMPARACION2:  
-	               print              auxCadena
 	               xor                cx, cx
 	               mov                cx, 5
 	               xor                si, si
@@ -1566,7 +1566,8 @@ compareComando macro buffer
 	               print              medianaVal
 	               jmp                FIN
 	MODAP:         
-	               print              notYet
+	               print              modaDe
+	               print              modaVal
 	               jmp                FIN
 	MENORP:        
 	               print              menorDe
@@ -1996,4 +1997,71 @@ realizarMediana macro
 
 endm
 
+realizarModa macro
+	             LOCAL     ASIGNAR, RECORRER, AUMENTAR, SIGUIENTE, SIGUIENTE2, COMPARAR, FIN, SETMODA, ASIGNARMODA
+	             xor       si, si
+	             xor       di, di
+	             xor       cx, cx
+	             xor       ax, ax
+	             xor       bx, bx
+	             xor       dx, dx
+	             mov       cx, cont
+	             mov       bx, 2
+	             mov       ax, cx
+	             mul       bx
+	             mov       dx, ax
+	             add       dx, 2
+	             xor       cx, cx
+	             xor       ax, ax
+	             xor       bx, bx
+	             mov       cont3, 0
 
+	ASIGNAR:     
+	             mov       ax, arrayWord[si]
+	             jmp       RECORRER
+				
+	RECORRER:    
+	             mov       bx, arrayWord[di]
+	             cmp       ax, bx
+	             jl        SIGUIENTE2
+	             je        AUMENTAR
+
+	AUMENTAR:    
+	             inc       cx
+	             jmp       SIGUIENTE
+
+	SIGUIENTE:   
+	             inc       di
+	             inc       di
+	             cmp       di, dx
+	             je        FIN
+	             jmp       RECORRER
+
+	SIGUIENTE2:  
+	             inc       si
+	             inc       si
+	             cmp       si, dx
+	             je        FIN
+	             jmp       COMPARAR
+
+	COMPARAR:    
+	             cmp       cx, 1
+	             jg        SETMODA
+	             xor       cx, cx
+	             jmp       ASIGNAR
+
+	SETMODA:     
+	             cmp       cx, cont3
+	             jg        ASIGNARMODA
+	             xor       cx, cx
+	             jmp       ASIGNAR
+
+	ASIGNARMODA: 
+	             mov       cont3, cx
+	             clean     modaVal, SIZEOF modaVal
+	             to_string modaVal
+	             jmp       ASIGNAR
+		
+	FIN:         
+
+endm
