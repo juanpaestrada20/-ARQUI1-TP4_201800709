@@ -1998,69 +1998,71 @@ realizarMediana macro
 endm
 
 realizarModa macro
-	             LOCAL     ASIGNAR, RECORRER, AUMENTAR, SIGUIENTE, SIGUIENTE2, COMPARAR, FIN, SETMODA, ASIGNARMODA
-	             xor       si, si
-	             xor       di, di
-	             xor       cx, cx
-	             xor       ax, ax
-	             xor       bx, bx
-	             xor       dx, dx
-	             mov       cx, cont
-	             mov       bx, 2
-	             mov       ax, cx
-	             mul       bx
-	             mov       dx, ax
-	             add       dx, 2
-	             xor       cx, cx
-	             xor       ax, ax
-	             xor       bx, bx
-	             mov       cont3, 0
+	             LOCAL       ASIGNAR, RECORRER, AUMENTAR, SIGUIENTE, SIGUIENTE2, COMPARAR, FIN, SETMODA, ASIGNARMODA
+	             xor         si, si
+	             xor         di, di
+	             xor         cx, cx
+	             xor         ax, ax
+	             xor         bx, bx
+	             xor         dx, dx
+	             mov         cx, cont
+	             mov         bx, 2
+	             mov         ax, cx
+	             mul         bx
+	             mov         dx, ax
+	             add         dx, 2
+	             xor         cx, cx
+	             xor         ax, ax
+	             xor         bx, bx
+	             mov         cont3, 0
 
 	ASIGNAR:     
-	             mov       ax, arrayWord[si]
-	             jmp       RECORRER
+	             mov         ax, arrayWord[si]
+	             jmp         RECORRER
 				
 	RECORRER:    
-	             mov       bx, arrayWord[di]
-	             cmp       ax, bx
-	             jl        SIGUIENTE2
-	             je        AUMENTAR
+	             mov         bx, arrayWord[di]
+	             cmp         ax, bx
+	             jl          SIGUIENTE2
+	             je          AUMENTAR
 
 	AUMENTAR:    
-	             inc       cx
-	             jmp       SIGUIENTE
+	             inc         cx
+	             jmp         SIGUIENTE
 
 	SIGUIENTE:   
-	             inc       di
-	             inc       di
-	             cmp       di, dx
-	             je        SIGUIENTE2
-	             jmp       RECORRER
+	             inc         di
+	             inc         di
+	             cmp         di, dx
+	             je          SIGUIENTE2
+	             jmp         RECORRER
 
 	SIGUIENTE2:  
-	             inc       si
-	             inc       si
-	             cmp       si, dx
-	             je        FIN
-	             jmp       COMPARAR
+	             inc         si
+	             inc         si
+	             cmp         si, dx
+	             je          FIN
+	             jmp         COMPARAR
 
 	COMPARAR:    
-	             cmp       cx, 1
-	             jg        SETMODA
-	             xor       cx, cx
-	             jmp       ASIGNAR
+	             cmp         cx, 1
+	             jg          SETMODA
+	             xor         cx, cx
+	             jmp         ASIGNAR
 
 	SETMODA:     
-	             cmp       cx, cont3
-	             jg        ASIGNARMODA
-	             xor       cx, cx
-	             jmp       ASIGNAR
+	             cmp         cx, cont3
+	             jg          ASIGNARMODA
+	             xor         cx, cx
+	             jmp         ASIGNAR
 
 	ASIGNARMODA: 
-	             mov       cont3, cx
-	             clean     modaVal, SIZEOF modaVal
-	             to_string modaVal
-	             jmp       ASIGNAR
+	             mov         cont3, cx
+	             clean       modaVal, SIZEOF modaVal
+	             pushRecords
+	             to_string   modaVal
+	             popRecords
+	             jmp         ASIGNAR
 		
 	FIN:         
 
